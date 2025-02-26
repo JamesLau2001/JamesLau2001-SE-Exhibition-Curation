@@ -1,20 +1,27 @@
 export async function fetchClevelandArtifacts({
   title = "asc",
   currentlyOnView = "",
+  page = 1,
+  limit = 20,
 } = {}) {
-  let url = `https://openaccess-api.clevelandart.org/api/artworks?limit=20&has_image=1`;
+  const skip = (page - 1) * limit; // Calculate the number of items to skip
+
+  let url = `https://openaccess-api.clevelandart.org/api/artworks?limit=${limit}&skip=${skip}&has_image=1`;
 
   if (title === "asc") {
-    url += `&+title`; 
+    url += `&+title`;
   } else if (title === "desc") {
-    url += `&-title`; 
+    url += `&-title`;
   }
 
   if (currentlyOnView === "true") {
-    url += `&currently_on_view`; 
+    url += `&currently_on_view`;
   }
 
-  const response = await fetch(url, { mode: "cors" });
+  console.log("Fetching URL:", url);
+  console.log("skip", skip); // ✅ Debugging
+
+  const response = await fetch(url);
   const data = await response.json();
 
   return data.data || [];
