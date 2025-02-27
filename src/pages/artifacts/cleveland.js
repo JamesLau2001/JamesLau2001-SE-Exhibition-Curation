@@ -4,10 +4,21 @@ import { fetchClevelandArtifacts } from "../api/clevelandApiCalls";
 import ArtifactCard from "../components/ArtifactCard.js";
 
 export async function getServerSideProps({ query }) {
+  const source = query.source || "cleveland";
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "";
   const currentPage = parseInt(query.page, 10) || 1;
-  const skip = (currentPage - 1) * 20;
+
+  if (source !== "cleveland") {
+    return {
+      props: {
+        artifacts: [],
+        initialTitleSort: titleSortByQuery,
+        initialOnView: currentlyOnViewQuery,
+        initialPage: currentPage,
+      },
+    };
+  }
 
   try {
     const artifacts = await fetchClevelandArtifacts({
@@ -60,7 +71,6 @@ export default function ArtifactContainer({
 
   useEffect(() => {
     if (pageQuery > 1) {
-      // ✅ Fetch only for pages greater than 1
       setLoading(true);
       setFetchError(null);
 
@@ -91,7 +101,6 @@ export default function ArtifactContainer({
 
       fetchAndSortArtifacts();
     } else {
-      // ✅ Page 1: Use initial `getServerSideProps` data
       let sortedArtifacts = [...artifacts];
 
       if (titleSortByQuery === "asc") {
@@ -206,6 +215,7 @@ export default function ArtifactContainer({
         )}
       </div>
 
+      {/* Pagination Controls */}
       <div className="pagination-controls">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
