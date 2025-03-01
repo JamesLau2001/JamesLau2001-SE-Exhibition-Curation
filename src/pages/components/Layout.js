@@ -18,6 +18,9 @@ export default function Layout({ children }) {
             <li>
               <Link href="/">Home</Link>
             </li>
+            <li>
+              <Link href="/artifacts/SavedArtifacts">SavedArtifacts</Link>
+            </li>
           </ul>
         </nav>
       )}

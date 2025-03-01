@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 
 const ArtifactCard = ({ artifact }) => {
   return (

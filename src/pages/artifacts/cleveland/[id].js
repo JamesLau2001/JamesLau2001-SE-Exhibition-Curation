@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchClevelandArtifactById } from "@/pages/api/clevelandApiCalls";
 import Image from "next/image";
+import { useSavedArtifacts } from "@/contexts/SavedArtifactsContext";
+
 export async function getServerSideProps({ params }) {
   const { id } = params;
 
   try {
     const artifact = await fetchClevelandArtifactById(id);
 
-    if (!artifact) {
+    if (!artifact || Object.keys(artifact).length === 0) {
       return { notFound: true };
     }
 
@@ -25,7 +27,8 @@ export async function getServerSideProps({ params }) {
 export default function ArtifactPage({ artifact: initialArtifact }) {
   const router = useRouter();
   const { id } = router.query;
-
+  const { savedArtifacts, addSavedArtifact, removeSavedArtifact } =
+    useSavedArtifacts();
   const [artifact, setArtifact] = useState(initialArtifact);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -43,11 +46,19 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
           setLoading(false);
         });
     }
-  }, [id]);
+  }, [id, artifact]);
 
   if (error) return <p>Error: {error}</p>;
   if (loading) return <p>Loading...</p>;
   if (!artifact) return <p>Artifact not found.</p>;
+
+  const handleSave = () => {
+    if (savedArtifacts.includes(initialArtifact.id)) {
+      removeSavedArtifact(initialArtifact.id); // Remove if already saved
+    } else {
+      addSavedArtifact(initialArtifact.id); // Add to saved artifacts
+    }
+  };
 
   return (
     <article>
@@ -89,6 +100,16 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
           {artifact.current_location || "Location not specified"}
         </p>
       </section>
+
+      <div>
+        <h1>{initialArtifact.title}</h1>
+        <button onClick={handleSave}>
+          {savedArtifacts.includes(initialArtifact.id)
+            ? "Remove from Saved"
+            : "Save Artifact"}
+        </button>
+        {/* Additional artifact details here */}
+      </div>
     </article>
   );
 }
