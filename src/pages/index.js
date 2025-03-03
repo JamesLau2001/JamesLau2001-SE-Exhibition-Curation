@@ -10,7 +10,7 @@ export default function Home() {
         <Link href="/artifacts/Cleveland">
           <button className="px-4 py-2 bg-green-500 text-white rounded">The Cleveland Museum of Art</button>
         </Link>
-        <Link href="/artifacts?source=chicago">
+        <Link href="/artifacts/Chicago">
           <button className="px-4 py-2 bg-red-500 text-white rounded">Art Institute of Chicago</button>
         </Link>
       </div>

@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { fetchClevelandArtifactById } from "@/pages/api/clevelandApiCalls";
+import { fetchChicagoArtifactById } from "@/pages/api/chicagoApiCalls";
 import Image from "next/image";
-import { useSavedArtifacts } from "@/contexts/ClevelandSavedArtifactsContext";
+import { useSavedChicagoArtifacts } from "@/contexts/ChicagoSavedArtifactsContext";
 
 export async function getServerSideProps({ params }) {
   const { id } = params;
 
   try {
-    const artifact = await fetchClevelandArtifactById(id);
+    const artifact = await fetchChicagoArtifactById(id);
 
     if (!artifact || Object.keys(artifact).length === 0) {
       return { notFound: true };
@@ -24,27 +24,33 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-export default function ArtifactPage({ artifact: initialArtifact }) {
+export default function ChicagoArtifactPage({ artifact: initialArtifact }) {
   const router = useRouter();
   const { id } = router.query;
-  const { savedArtifacts, addSavedArtifact, removeSavedArtifact } =
-    useSavedArtifacts();
   const [artifact, setArtifact] = useState(initialArtifact);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const {
+    savedChicagoArtifacts,
+    addSavedChicagoArtifact,
+    removeSavedChicagoArtifact,
+  } = useSavedChicagoArtifacts();
+
+  const imageUrl = artifact?.image_id
+    ? `https://www.artic.edu/iiif/2/${artifact.image_id}/full/843,/0/default.jpg`
+    : null;
 
   useEffect(() => {
     const fetchArtifact = async () => {
       if (!artifact && id) {
         setLoading(true);
         try {
-          const data = await fetchClevelandArtifactById(id);
+          const data = await fetchChicagoArtifactById(id);
           setArtifact(data);
         } catch {
           setError("Failed to load artifact.");
-        } finally {
-          setLoading(false);
         }
+        setLoading(false);
       }
     };
 
@@ -56,62 +62,53 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
   if (!artifact) return <p>Artifact not found.</p>;
 
   const handleSave = () => {
-    if (savedArtifacts.includes(initialArtifact.id)) {
-      removeSavedArtifact(initialArtifact.id); 
+    if (savedChicagoArtifacts.includes(initialArtifact.id)) {
+      removeSavedChicagoArtifact(initialArtifact.id); 
     } else {
-      addSavedArtifact(initialArtifact.id); 
+      addSavedChicagoArtifact(initialArtifact.id); 
     }
   };
-
+  const stripHtmlTags = (html) => {
+    if (!html) return "No description available.";
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
   return (
     <article>
       <h1 tabIndex="0">{artifact.title}</h1>
-
-      {artifact?.images?.web?.url ? (
+      {imageUrl ? (
         <Image
-          src={artifact.images.web.url}
-          alt={
-            artifact.title
-              ? `Image of ${artifact.title} by ${
-                  artifact.creators?.[0]?.description || "Unknown Creator"
-                }`
-              : "No Image Available"
-          }
+          src={imageUrl}
+          alt={`Image of ${artifact.title || "Untitled"}`}
           width={500}
           height={500}
+          unoptimized 
         />
       ) : (
         <p>No Image Available</p>
       )}
-
       <section>
         <h2>Description</h2>
-        <p>{artifact.description || "No description available."}</p>
+        <p>{stripHtmlTags(artifact.description) || "No description available."}</p>
       </section>
-
       <section>
         <h2>Artifact Details</h2>
         <p>
-          <strong>Created by:</strong>{" "}
-          {artifact.creators?.[0]?.description || "Unknown"}
+          <strong>Created by:</strong> {artifact.artist_title || "Unknown"}
         </p>
         <p>
-          <strong>Created in:</strong> {artifact.creation_date || "Unknown"}
+          <strong>Created in:</strong> {artifact.date_display || "Unknown"}
         </p>
         <p>
           <strong>Located at:</strong>{" "}
-          {artifact.current_location || "Location not specified"}
+          {artifact.gallery_title || "Not available at this museum"}
         </p>
       </section>
-
       <div>
-        <h1>{initialArtifact.title}</h1>
         <button onClick={handleSave}>
-          {savedArtifacts.includes(initialArtifact.id)
+          {savedChicagoArtifacts.includes(initialArtifact.id)
             ? "Remove from Saved"
             : "Save Artifact"}
         </button>
-        {/* Additional artifact details here */}
       </div>
     </article>
   );

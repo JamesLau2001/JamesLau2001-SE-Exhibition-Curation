@@ -1,5 +1,3 @@
-// context/SavedArtifactsContext.js
-
 import { createContext, useContext, useState } from "react";
 
 const SavedArtifactsContext = createContext();

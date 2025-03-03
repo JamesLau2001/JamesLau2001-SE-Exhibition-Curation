@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { fetchClevelandArtifacts } from "../api/clevelandApiCalls";
-import ArtifactCard from "../components/ClevelandArtifactCard.js";
-
+import { fetchChicagoArtifacts } from "../api/chicagoApiCalls";
+import ChicagoArtifactCard from "../components/ChicagoArtifactCard";
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
-  const currentlyOnViewQuery = query.currently_on_view || "";
+  const currentlyOnViewQuery = query.currently_on_view || "false";
   const currentPage = parseInt(query.page, 10) || 1;
 
   try {
-    const artifacts = await fetchClevelandArtifacts({
+    const artifacts = await fetchChicagoArtifacts({
       title: titleSortByQuery,
       currentlyOnView: currentlyOnViewQuery,
       page: currentPage,
@@ -51,62 +50,41 @@ export default function ArtifactContainer({
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(error || null);
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [currentlyOnView, setCurrentlyOnView] = useState(initialOnView);
 
   const titleSortByQuery = searchParams.get("title") || initialTitleSort;
-  const currentlyOnViewQuery =
-    searchParams.get("currently_on_view") || initialOnView;
   const pageQuery = parseInt(searchParams.get("page"), 10) || initialPage;
 
   useEffect(() => {
-    if (pageQuery > 1) {
-      setLoading(true);
-      setFetchError(null);
+    setLoading(true);
+    setFetchError(null);
 
-      const fetchAndSortArtifacts = async () => {
-        try {
-          const updatedArtifacts = await fetchClevelandArtifacts({
-            title: titleSortByQuery,
-            currentlyOnView: currentlyOnViewQuery,
-            page: pageQuery,
-          });
+    const fetchAndSortArtifacts = async () => {
+      try {
+        const updatedArtifacts = await fetchChicagoArtifacts({
+          title: titleSortByQuery,
+          currentlyOnView,
+          page: pageQuery,
+        });
 
-          let sortedArtifacts = [...updatedArtifacts];
+        let sortedArtifacts = [...updatedArtifacts];
 
-          if (titleSortByQuery === "asc") {
-            sortedArtifacts.sort((a, b) => a.title.localeCompare(b.title));
-          } else if (titleSortByQuery === "desc") {
-            sortedArtifacts.sort((a, b) => b.title.localeCompare(a.title));
-          }
-
-          setCurrentArtifacts(sortedArtifacts);
-          setCurrentPage(pageQuery);
-        } catch (err) {
-          setFetchError("Failed to fetch artifacts.");
+        if (titleSortByQuery === "asc") {
+          sortedArtifacts.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (titleSortByQuery === "desc") {
+          sortedArtifacts.sort((a, b) => b.title.localeCompare(a.title));
         }
 
-        setLoading(false);
-      };
-
-      fetchAndSortArtifacts();
-    } else {
-      let sortedArtifacts = [...artifacts];
-
-      if (titleSortByQuery === "asc") {
-        sortedArtifacts.sort((a, b) => a.title.localeCompare(b.title));
-      } else if (titleSortByQuery === "desc") {
-        sortedArtifacts.sort((a, b) => b.title.localeCompare(a.title));
+        setCurrentArtifacts(sortedArtifacts);
+        setCurrentPage(pageQuery);
+      } catch (err) {
+        setFetchError("Failed to fetch artifacts.");
       }
+      setLoading(false);
+    };
 
-      setCurrentArtifacts(sortedArtifacts);
-      setCurrentPage(initialPage);
-    }
-  }, [
-    titleSortByQuery,
-    currentlyOnViewQuery,
-    pageQuery,
-    artifacts,
-    initialPage,
-  ]);
+    fetchAndSortArtifacts();
+  }, [titleSortByQuery, currentlyOnView, pageQuery]);
 
   const handleSortChange = (event) => {
     const titleSort = event.target.value;
@@ -122,7 +100,8 @@ export default function ArtifactContainer({
   };
 
   const handleOnViewToggle = () => {
-    const newOnViewValue = currentlyOnViewQuery === "true" ? "false" : "true";
+    const newOnViewValue = currentlyOnView === "true" ? "false" : "true";
+    setCurrentlyOnView(newOnViewValue);
     searchParams.set("currently_on_view", newOnViewValue);
     router.push(
       {
@@ -147,11 +126,8 @@ export default function ArtifactContainer({
     );
     setCurrentPage(page);
   };
-
   return (
     <div>
-      <h1>Fetched Cleveland Artifacts</h1>
-
       {/* Sorting Dropdowns */}
       <div>
         <p>Sort:</p>
@@ -173,36 +149,31 @@ export default function ArtifactContainer({
           onClick={handleOnViewToggle}
           style={{
             border: "1px solid black",
-            backgroundColor:
-              currentlyOnViewQuery === "true" ? "#007bff" : "white",
-            color: currentlyOnViewQuery === "true" ? "white" : "black",
+            backgroundColor: currentlyOnView === "true" ? "#007bff" : "white",
+            color: currentlyOnView === "true" ? "white" : "black",
             cursor: "pointer",
             transition: "background-color 0.2s",
           }}
         >
-          {currentlyOnViewQuery === "true"
+          {currentlyOnView === "true"
             ? "On View ✅"
             : "Show Available at Museum"}
         </button>
       </div>
-
       {/* Show only if an error occurs */}
       {fetchError && <p style={{ color: "red" }}>{fetchError}</p>}
 
       {/* Show loading when fetching */}
       {loading && <p>Loading...</p>}
-
-      {/* Render Artifacts */}
       <div className="artifact-container">
         {currentArtifacts.length > 0 ? (
           currentArtifacts.map((artifact) => (
-            <ArtifactCard key={artifact.id} artifact={artifact} />
+            <ChicagoArtifactCard key={artifact.id} artifact={artifact} />
           ))
         ) : (
           <p>No artifacts found</p>
         )}
       </div>
-
       {/* Pagination Controls */}
       <div className="pagination-controls">
         <button
