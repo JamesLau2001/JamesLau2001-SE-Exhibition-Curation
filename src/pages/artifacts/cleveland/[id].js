@@ -10,28 +10,42 @@ export async function getServerSideProps({ params }) {
   try {
     const artifact = await fetchClevelandArtifactById(id);
 
+    if (artifact?.error) {
+      return {
+        props: {
+          artifact: null,
+          error: artifact.message,
+          statusCode: artifact.statusCode,
+        },
+      };
+    }
+
     if (!artifact || Object.keys(artifact).length === 0) {
       return { notFound: true };
     }
 
     return {
-      props: { artifact },
+      props: { artifact, error: null, statusCode: null }
     };
   } catch (error) {
     return {
-      props: { artifact: null, error: "Failed to fetch artifact." },
+      props: {
+        artifact: null,
+        error: "Failed to fetch artifact.",
+        statusCode: 500,
+      },
     };
   }
 }
 
-export default function ArtifactPage({ artifact: initialArtifact }) {
+export default function ArtifactPage({ artifact: initialArtifact, error, statusCode }) {
   const router = useRouter();
   const { id } = router.query;
   const { savedArtifacts, addSavedArtifact, removeSavedArtifact } =
     useSavedArtifacts();
   const [artifact, setArtifact] = useState(initialArtifact);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [fetchError, setFetchError] = useState(error || null);
 
   useEffect(() => {
     const fetchArtifact = async () => {
@@ -39,9 +53,15 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
         setLoading(true);
         try {
           const data = await fetchClevelandArtifactById(id);
-          setArtifact(data);
+
+          if (data?.error) {
+            setFetchError(data.message);
+            setArtifact(null);
+          } else {
+            setArtifact(data);
+          }
         } catch {
-          setError("Failed to load artifact.");
+          setFetchError("Failed to load artifact.");
         } finally {
           setLoading(false);
         }
@@ -51,7 +71,8 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
     fetchArtifact();
   }, [id, artifact]);
 
-  if (error) return <p>Error: {error}</p>;
+  if (fetchError)
+    return <p style={{ color: "red" }}>{fetchError} {statusCode && `(Error Code: ${statusCode})`}</p>;
   if (loading) return <p>Loading...</p>;
   if (!artifact) return <p>Artifact not found.</p>;
 
@@ -111,7 +132,6 @@ export default function ArtifactPage({ artifact: initialArtifact }) {
             ? "Remove from Saved"
             : "Save Artifact"}
         </button>
-        {/* Additional artifact details here */}
       </div>
     </article>
   );

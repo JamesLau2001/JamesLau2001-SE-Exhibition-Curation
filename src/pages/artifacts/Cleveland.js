@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchClevelandArtifacts } from "../api/clevelandApiCalls";
 import ArtifactCard from "../components/ClevelandArtifactCard.js";
-
+import { handlePageChange } from "@/utils/paginationControls";
+import { handleSortChange } from "@/utils/handleSortChange";
+import PaginationControls from "../components/PaginationControls";
+import FilterOnViewControls from "../components/ToggleOnViewControl";
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "";
@@ -15,23 +18,38 @@ export async function getServerSideProps({ query }) {
       page: currentPage,
     });
 
+    if (artifacts?.error) {
+      return {
+        props: {
+          artifacts: [],
+          error: artifacts.message || "Failed to fetch artifacts.",
+          statusCode: artifacts.statusCode || 500,
+          initialTitleSort: titleSortByQuery,
+          initialOnView: currentlyOnViewQuery,
+          initialPage: currentPage,
+        },
+      };
+    }
+
     return {
       props: {
         artifacts,
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
+        error: null,
+        statusCode: null,
       },
     };
   } catch (error) {
-    console.error("Server Fetch Error:", error);
     return {
       props: {
         artifacts: [],
+        error: "Failed to fetch artifacts.",
+        statusCode: 500,
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
-        error: "Failed to fetch artifacts.",
       },
     };
   }
@@ -43,6 +61,7 @@ export default function ArtifactContainer({
   initialOnView,
   initialPage,
   error,
+  statusCode,
 }) {
   const router = useRouter();
   const searchParams = new URLSearchParams(router.query);
@@ -70,16 +89,21 @@ export default function ArtifactContainer({
             page: pageQuery,
           });
 
-          let sortedArtifacts = [...updatedArtifacts];
+          if (updatedArtifacts?.error) {
+            setFetchError(updatedArtifacts.message);
+            setCurrentArtifacts([]);
+          } else {
+            let sortedArtifacts = [...updatedArtifacts];
 
-          if (titleSortByQuery === "asc") {
-            sortedArtifacts.sort((a, b) => a.title.localeCompare(b.title));
-          } else if (titleSortByQuery === "desc") {
-            sortedArtifacts.sort((a, b) => b.title.localeCompare(a.title));
+            if (titleSortByQuery === "asc") {
+              sortedArtifacts.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (titleSortByQuery === "desc") {
+              sortedArtifacts.sort((a, b) => b.title.localeCompare(a.title));
+            }
+
+            setCurrentArtifacts(sortedArtifacts);
+            setCurrentPage(pageQuery);
           }
-
-          setCurrentArtifacts(sortedArtifacts);
-          setCurrentPage(pageQuery);
         } catch (err) {
           setFetchError("Failed to fetch artifacts.");
         }
@@ -108,17 +132,8 @@ export default function ArtifactContainer({
     initialPage,
   ]);
 
-  const handleSortChange = (event) => {
-    const titleSort = event.target.value;
-    searchParams.set("title", titleSort);
-    router.push(
-      {
-        pathname: router.pathname,
-        query: Object.fromEntries(searchParams),
-      },
-      undefined,
-      { shallow: true }
-    );
+  const handleSort = (event) => {
+    handleSortChange(event, router, searchParams);
   };
 
   const handleOnViewToggle = () => {
@@ -134,18 +149,8 @@ export default function ArtifactContainer({
     );
   };
 
-  const handlePageChange = (page) => {
-    if (page < 1) return;
-    searchParams.set("page", page);
-    router.push(
-      {
-        pathname: router.pathname,
-        query: Object.fromEntries(searchParams),
-      },
-      undefined,
-      { shallow: true }
-    );
-    setCurrentPage(page);
+  const handlePage = (page) => {
+    handlePageChange(page, router, searchParams, setCurrentPage);
   };
 
   return (
@@ -156,11 +161,7 @@ export default function ArtifactContainer({
       <div>
         <p>Sort:</p>
         <label htmlFor="sort-select">Title by:</label>
-        <select
-          id="sort-select"
-          onChange={handleSortChange}
-          value={titleSortByQuery}
-        >
+        <select id="sort-select" onChange={handleSort} value={titleSortByQuery}>
           <option value="asc">A-Z</option>
           <option value="desc">Z-A</option>
         </select>
@@ -187,7 +188,11 @@ export default function ArtifactContainer({
       </div>
 
       {/* Show only if an error occurs */}
-      {fetchError && <p style={{ color: "red" }}>{fetchError}</p>}
+      {fetchError && (
+        <p style={{ color: "red" }}>
+          {fetchError} {statusCode && `(Error Code: ${statusCode})`}
+        </p>
+      )}
 
       {/* Show loading when fetching */}
       {loading && <p>Loading...</p>}
@@ -204,16 +209,12 @@ export default function ArtifactContainer({
       </div>
 
       {/* Pagination Controls */}
-      <div className="pagination-controls">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span> Page {currentPage} </span>
-        <button onClick={() => handlePageChange(currentPage + 1)}>Next</button>
-      </div>
+      <PaginationControls
+        currentPage={currentPage}
+        handlePageChange={(page) =>
+          handlePage(page, router, searchParams, setCurrentPage)
+        }
+      />
     </div>
   );
 }
