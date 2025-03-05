@@ -8,9 +8,11 @@ export default function Layout({ children }) {
 
   return (
     <div>
-      <header>
-        <h1 className="text-2xl font-bold">My Exhibition Platform</h1>
-      </header>
+      <Link href="/">
+        <header>
+          <h1 className="text-2xl font-bold">My Exhibition Platform</h1>
+        </header>
+      </Link>
 
       {!isFirstPage && (
         <nav>
