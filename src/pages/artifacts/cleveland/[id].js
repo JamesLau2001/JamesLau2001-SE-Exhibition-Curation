@@ -25,7 +25,7 @@ export async function getServerSideProps({ params }) {
     }
 
     return {
-      props: { artifact, error: null, statusCode: null }
+      props: { artifact, error: null, statusCode: null },
     };
   } catch (error) {
     return {
@@ -38,7 +38,11 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-export default function ArtifactPage({ artifact: initialArtifact, error, statusCode }) {
+export default function ArtifactPage({
+  artifact: initialArtifact,
+  error,
+  statusCode,
+}) {
   const router = useRouter();
   const { id } = router.query;
   const { savedArtifacts, addSavedArtifact, removeSavedArtifact } =
@@ -72,62 +76,82 @@ export default function ArtifactPage({ artifact: initialArtifact, error, statusC
   }, [id, artifact]);
 
   if (fetchError)
-    return <p style={{ color: "red" }}>{fetchError} {statusCode && `(Error Code: ${statusCode})`}</p>;
-  if (loading) return <p>Loading...</p>;
-  if (!artifact) return <p>Artifact not found.</p>;
+    return (
+      <p className="text-red-600 text-center text-lg">
+        {fetchError} {statusCode && `(Error Code: ${statusCode})`}
+      </p>
+    );
+  if (loading)
+    return <p className="text-center text-lg font-medium">Loading...</p>;
+  if (!artifact)
+    return <p className="text-center text-lg font-medium">Artifact not found.</p>;
 
   const handleSave = () => {
     if (savedArtifacts.includes(initialArtifact.id)) {
-      removeSavedArtifact(initialArtifact.id); 
+      removeSavedArtifact(initialArtifact.id);
     } else {
-      addSavedArtifact(initialArtifact.id); 
+      addSavedArtifact(initialArtifact.id);
     }
   };
 
   return (
-    <article>
-      <h1 tabIndex="0">{artifact.title}</h1>
+    <article className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h1 className="text-2xl font-bold text-center text-gray-900" tabIndex="0">
+        {artifact.title}
+      </h1>
 
       {artifact?.images?.web?.url ? (
-        <Image
-          src={artifact.images.web.url}
-          alt={
-            artifact.title
-              ? `Image of ${artifact.title} by ${
-                  artifact.creators?.[0]?.description || "Unknown Creator"
-                }`
-              : "No Image Available"
-          }
-          width={500}
-          height={500}
-        />
+        <div className="flex justify-center my-4">
+          <Image
+            src={artifact.images.web.url}
+            alt={
+              artifact.title
+                ? `Image of ${artifact.title} by ${
+                    artifact.creators?.[0]?.description || "Unknown Creator"
+                  }`
+                : "No Image Available"
+            }
+            width={500}
+            height={500}
+            className="rounded-lg shadow-lg"
+            priority
+          />
+        </div>
       ) : (
-        <p>No Image Available</p>
+        <p className="text-center text-gray-500">No Image Available</p>
       )}
 
-      <section>
-        <h2>Description</h2>
-        <p>{artifact.description || "No description available."}</p>
+      <section className="mt-4">
+        <h2 className="text-xl font-semibold text-gray-800">Description</h2>
+        <p className="text-gray-700 mt-2">
+          {artifact.description || "No description available."}
+        </p>
       </section>
 
-      <section>
-        <h2>Artifact Details</h2>
-        <p>
+      <section className="mt-4">
+        <h2 className="text-xl font-semibold text-gray-800">Artifact Details</h2>
+        <p className="text-gray-700 mt-2">
           <strong>Created by:</strong>{" "}
           {artifact.creators?.[0]?.description || "Unknown"}
         </p>
-        <p>
+        <p className="text-gray-700 mt-1">
           <strong>Created in:</strong> {artifact.creation_date || "Unknown"}
         </p>
-        <p>
+        <p className="text-gray-700 mt-1">
           <strong>Located at:</strong>{" "}
           {artifact.current_location || "Location not specified"}
         </p>
       </section>
 
-      <div>
-        <h1>{initialArtifact.title}</h1>
-        <button onClick={handleSave}>
+      <div className="mt-6 flex flex-col items-center">
+        <button
+          onClick={handleSave}
+          className={`px-6 py-2 rounded-lg font-medium transition-all ${
+            savedArtifacts.includes(initialArtifact.id)
+              ? "bg-red-500 text-white hover:bg-red-600"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
           {savedArtifacts.includes(initialArtifact.id)
             ? "Remove from Saved"
             : "Save Artifact"}

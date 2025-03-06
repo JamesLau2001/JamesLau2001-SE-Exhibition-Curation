@@ -38,7 +38,11 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-export default function ChicagoArtifactPage({ artifact: initialArtifact, error, statusCode }) {
+export default function ChicagoArtifactPage({
+  artifact: initialArtifact,
+  error,
+  statusCode,
+}) {
   const router = useRouter();
   const { id } = router.query;
   const [artifact, setArtifact] = useState(initialArtifact);
@@ -79,15 +83,21 @@ export default function ChicagoArtifactPage({ artifact: initialArtifact, error, 
   }, [id, artifact]);
 
   if (fetchError)
-    return <p style={{ color: "red" }}>{fetchError} {statusCode && `(Error Code: ${statusCode})`}</p>;
-  if (loading) return <p>Loading...</p>;
-  if (!artifact) return <p>Artifact not found.</p>;
+    return (
+      <p className="text-red-600 text-center text-lg">
+        {fetchError} {statusCode && `(Error Code: ${statusCode})`}
+      </p>
+    );
+  if (loading)
+    return <p className="text-center text-lg font-medium">Loading...</p>;
+  if (!artifact)
+    return <p className="text-center text-lg font-medium">Artifact not found.</p>;
 
   const handleSave = () => {
     if (savedChicagoArtifacts.includes(initialArtifact.id)) {
-      removeSavedChicagoArtifact(initialArtifact.id); 
+      removeSavedChicagoArtifact(initialArtifact.id);
     } else {
-      addSavedChicagoArtifact(initialArtifact.id); 
+      addSavedChicagoArtifact(initialArtifact.id);
     }
   };
 
@@ -97,38 +107,56 @@ export default function ChicagoArtifactPage({ artifact: initialArtifact, error, 
   };
 
   return (
-    <article>
-      <h1 tabIndex="0">{artifact.title}</h1>
+    <article className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h1 className="text-2xl font-bold text-center text-gray-900" tabIndex="0">
+        {artifact.title}
+      </h1>
+
       {imageUrl ? (
-        <Image
-          src={imageUrl}
-          alt={`Image of ${artifact.title || "Untitled"}`}
-          width={500}
-          height={500}
-          unoptimized 
-        />
+        <div className="flex justify-center my-4">
+          <Image
+            src={imageUrl}
+            alt={`Image of ${artifact.title || "Untitled"}`}
+            width={500}
+            height={500}
+            className="rounded-lg shadow-lg"
+            priority
+          />
+        </div>
       ) : (
-        <p>No Image Available</p>
+        <p className="text-center text-gray-500">No Image Available</p>
       )}
-      <section>
-        <h2>Description</h2>
-        <p>{stripHtmlTags(artifact.description) || "No description available."}</p>
+
+      <section className="mt-4">
+        <h2 className="text-xl font-semibold text-gray-800">Description</h2>
+        <p className="text-gray-700 mt-2">
+          {stripHtmlTags(artifact.description) || "No description available."}
+        </p>
       </section>
-      <section>
-        <h2>Artifact Details</h2>
-        <p>
+
+      <section className="mt-4">
+        <h2 className="text-xl font-semibold text-gray-800">Artifact Details</h2>
+        <p className="text-gray-700 mt-2">
           <strong>Created by:</strong> {artifact.artist_title || "Unknown"}
         </p>
-        <p>
+        <p className="text-gray-700 mt-1">
           <strong>Created in:</strong> {artifact.date_display || "Unknown"}
         </p>
-        <p>
+        <p className="text-gray-700 mt-1">
           <strong>Located at:</strong>{" "}
           {artifact.gallery_title || "Not available at this museum"}
         </p>
       </section>
-      <div>
-        <button onClick={handleSave}>
+
+      <div className="mt-6 flex flex-col items-center">
+        <button
+          onClick={handleSave}
+          className={`px-6 py-2 rounded-lg font-medium transition-all ${
+            savedChicagoArtifacts.includes(initialArtifact.id)
+              ? "bg-red-500 text-white hover:bg-red-600"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
           {savedChicagoArtifacts.includes(initialArtifact.id)
             ? "Remove from Saved"
             : "Save Artifact"}
