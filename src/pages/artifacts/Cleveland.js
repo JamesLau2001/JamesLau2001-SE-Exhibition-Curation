@@ -220,7 +220,9 @@ export default function ArtifactContainer({
             </div>
           ))
         ) : (
-          <p className="text-red-600 col-span-full text-center">No artifacts found</p>
+          <p className="text-red-600 col-span-full text-center">
+            No artifacts found
+          </p>
         )}
       </div>
 
