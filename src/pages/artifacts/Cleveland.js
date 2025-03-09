@@ -71,10 +71,10 @@ export default function ArtifactContainer({
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(error || null);
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [artistSearch, setArtistSearch] = useState("");
 
   const titleSortByQuery = searchParams.get("title") || initialTitleSort;
-  const currentlyOnViewQuery =
-    searchParams.get("currently_on_view") || initialOnView;
+  const currentlyOnViewQuery = searchParams.get("currently_on_view") || initialOnView;
   const pageQuery = parseInt(searchParams.get("page"), 10) || initialPage;
 
   useEffect(() => {
@@ -165,13 +165,11 @@ export default function ArtifactContainer({
         Fetched Cleveland Artifacts
       </h1>
 
-      {/* Sorting & Filter Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm">
+      {/* Sorting, Search, & Filter Controls in One Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm gap-3">
+        {/* Sorting Dropdown */}
         <div className="flex items-center space-x-2">
           <p className="font-semibold text-gray-900">Sort:</p>
-          <label htmlFor="sort-select" className="sr-only">
-            Title by:
-          </label>
           <select
             id="sort-select"
             onChange={handleSort}
@@ -181,6 +179,22 @@ export default function ArtifactContainer({
             <option value="asc">A-Z</option>
             <option value="desc">Z-A</option>
           </select>
+        </div>
+
+        {/* Search Bar */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={artistSearch}
+            onChange={(e) => setArtistSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && artistSearch.trim()) {
+                router.push(`/artifacts/SearchResults?artist=${encodeURIComponent(artistSearch)}`);
+              }
+            }}
+            className="px-4 py-2 border border-gray-400 rounded-md"
+            placeholder="Search for ..."
+          />
         </div>
 
         {/* Toggle Button for "Currently on View Feature" */}
@@ -228,12 +242,7 @@ export default function ArtifactContainer({
 
       {/* Pagination Controls */}
       <div className="mt-6 flex justify-center">
-        <PaginationControls
-          currentPage={currentPage}
-          handlePageChange={(page) =>
-            handlePage(page, router, searchParams, setCurrentPage)
-          }
-        />
+        <PaginationControls currentPage={currentPage} handlePageChange={handlePage} />
       </div>
     </div>
   );

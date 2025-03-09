@@ -13,6 +13,10 @@ export default function SavedArtifacts() {
   const [artifactDetails, setArtifactDetails] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
+  const [currentPage, setCurrentPage] = useState(1); // For pagination
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+
+  const itemsPerPage = 20; // Set the number of items per page
 
   useEffect(() => {
     const fetchArtifacts = async () => {
@@ -23,8 +27,11 @@ export default function SavedArtifacts() {
           ...savedChicagoArtifacts,
         ]);
 
+        // Calculate skip based on the current page
+        const skip = (currentPage - 1) * itemsPerPage;
+
         const clevelandDetails = await Promise.all(
-          savedArtifacts.map(async (id) => {
+          savedArtifacts.slice(skip, skip + itemsPerPage).map(async (id) => {
             try {
               const data = await fetchClevelandArtifactById(id);
               return { ...data, source: "cleveland" };
@@ -35,7 +42,7 @@ export default function SavedArtifacts() {
         );
 
         const chicagoDetails = await Promise.all(
-          savedChicagoArtifacts.map(async (id) => {
+          savedChicagoArtifacts.slice(skip, skip + itemsPerPage).map(async (id) => {
             try {
               const data = await fetchChicagoArtifactById(id);
               return { ...data, source: "chicago" };
@@ -48,6 +55,7 @@ export default function SavedArtifacts() {
         setArtifactDetails(
           [...clevelandDetails, ...chicagoDetails].filter(Boolean)
         );
+        setTotalPages(Math.ceil((savedArtifacts.length + savedChicagoArtifacts.length) / itemsPerPage));
       } catch (err) {
         console.error("Error in fetchArtifacts:", err);
         setError("There was an error fetching the artifacts.");
@@ -59,7 +67,14 @@ export default function SavedArtifacts() {
     if (savedArtifacts.length > 0 || savedChicagoArtifacts.length > 0) {
       fetchArtifacts();
     }
-  }, [savedArtifacts, savedChicagoArtifacts]);
+  }, [savedArtifacts, savedChicagoArtifacts, currentPage]);
+
+  // Function to handle page change
+  const handlePageChange = (direction) => {
+    setCurrentPage((prev) => Math.min(Math.max(prev + direction, 1), totalPages));
+  };
+
+  const isLastPage = artifactDetails.length < itemsPerPage;
 
   return (
     <div
@@ -107,6 +122,34 @@ export default function SavedArtifacts() {
           No saved artifacts found
         </p>
       ) : null}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6 space-x-4">
+        {/* Previous Button */}
+        <button
+          onClick={() => handlePageChange(-1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-md font-medium transition border ${
+            currentPage === 1
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
+              : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
+          }`}
+        >
+          Previous
+        </button>
+
+        {/* Page Number */}
+        <span className="text-lg font-semibold text-gray-900">{currentPage}</span>
+
+        {/* Next Button */}
+        <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === totalPages || isLastPage}
+          className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
