@@ -1,35 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import { fetchClevelandArtifacts } from "../api/clevelandApiCalls";
+import {
+  fetchClevelandArtifacts,
+  fetchClevelandArtifactsByArtist,
+} from "../api/clevelandApiCalls";
 import ArtifactCard from "../components/ClevelandArtifactCard.js";
 import { handlePageChange } from "@/utils/paginationControls";
 import { handleSortChange } from "@/utils/handleSortChange";
 import PaginationControls from "../components/PaginationControls";
-import FilterOnViewControls from "../components/ToggleOnViewControl";
+import { useDebounce } from "@/utils/useDebounce";
 
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "";
+  const artistQuery = query.artist || "";
   const currentPage = parseInt(query.page, 10) || 1;
 
   try {
-    const artifacts = await fetchClevelandArtifacts({
-      title: titleSortByQuery,
-      currentlyOnView: currentlyOnViewQuery,
-      page: currentPage,
-    });
-
-    if (artifacts?.error) {
-      return {
-        props: {
-          artifacts: [],
-          error: artifacts.message || "Failed to fetch artifacts.",
-          statusCode: artifacts.statusCode || 500,
-          initialTitleSort: titleSortByQuery,
-          initialOnView: currentlyOnViewQuery,
-          initialPage: currentPage,
-        },
-      };
+    let artifacts;
+    if (artistQuery) {
+      artifacts = await fetchClevelandArtifactsByArtist(
+        artistQuery,
+        currentPage,
+        20
+      );
+    } else {
+      artifacts = await fetchClevelandArtifacts({
+        title: titleSortByQuery,
+        currentlyOnView: currentlyOnViewQuery,
+        page: currentPage,
+      });
     }
 
     return {
@@ -38,6 +38,7 @@ export async function getServerSideProps({ query }) {
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
+        initialArtist: artistQuery,
         error: null,
         statusCode: null,
       },
@@ -51,6 +52,7 @@ export async function getServerSideProps({ query }) {
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
+        initialArtist: "",
       },
     };
   }
@@ -61,35 +63,63 @@ export default function ArtifactContainer({
   initialTitleSort,
   initialOnView,
   initialPage,
-  error,
-  statusCode,
+  initialArtist,
 }) {
   const router = useRouter();
-  const searchParams = new URLSearchParams(router.query);
+  const searchParams = useMemo(
+    () => new URLSearchParams(router.query),
+    [router.query]
+  );
 
   const [currentArtifacts, setCurrentArtifacts] = useState(artifacts);
   const [loading, setLoading] = useState(false);
-  const [fetchError, setFetchError] = useState(error || null);
+  const [fetchError, setFetchError] = useState(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [artistSearch, setArtistSearch] = useState("");
+  const [artistSearch, setArtistSearch] = useState(initialArtist || "");
+
+  const debouncedArtistSearch = useDebounce(artistSearch, 300);
 
   const titleSortByQuery = searchParams.get("title") || initialTitleSort;
-  const currentlyOnViewQuery = searchParams.get("currently_on_view") || initialOnView;
+  const currentlyOnViewQuery =
+    searchParams.get("currently_on_view") || initialOnView;
   const pageQuery = parseInt(searchParams.get("page"), 10) || initialPage;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (pageQuery > 1) {
+
+    if (pageQuery > 1 || debouncedArtistSearch.trim().length > 0) {
       setLoading(true);
       setFetchError(null);
 
-      const fetchAndSortArtifacts = async () => {
+      const fetchArtifacts = async () => {
         try {
-          const updatedArtifacts = await fetchClevelandArtifacts({
-            title: titleSortByQuery,
-            currentlyOnView: currentlyOnViewQuery,
-            page: pageQuery,
-          });
+          let updatedArtifacts;
+
+          if (debouncedArtistSearch.trim().length > 0) {
+            updatedArtifacts = await fetchClevelandArtifactsByArtist(
+              debouncedArtistSearch,
+              pageQuery,
+              20
+            );
+          } else {
+            if (searchParams.has("artist")) {
+              searchParams.delete("artist");
+              router.replace(
+                {
+                  pathname: router.pathname,
+                  query: Object.fromEntries(searchParams),
+                },
+                undefined,
+                { shallow: true }
+              );
+            }
+
+            updatedArtifacts = await fetchClevelandArtifacts({
+              title: titleSortByQuery,
+              currentlyOnView: currentlyOnViewQuery,
+              page: pageQuery,
+            });
+          }
 
           if (updatedArtifacts?.error) {
             setFetchError(updatedArtifacts.message);
@@ -109,11 +139,10 @@ export default function ArtifactContainer({
         } catch (err) {
           setFetchError("Failed to fetch artifacts.");
         }
-
         setLoading(false);
       };
 
-      fetchAndSortArtifacts();
+      fetchArtifacts();
     } else {
       let sortedArtifacts = [...artifacts];
 
@@ -130,51 +159,31 @@ export default function ArtifactContainer({
     titleSortByQuery,
     currentlyOnViewQuery,
     pageQuery,
+    debouncedArtistSearch,
     artifacts,
     initialPage,
+    searchParams,
+    router,
   ]);
 
-  const handleSort = (event) => {
-    handleSortChange(event, router, searchParams);
-  };
-
-  const handleOnViewToggle = () => {
-    const newOnViewValue = currentlyOnViewQuery === "true" ? "false" : "true";
-    searchParams.set("currently_on_view", newOnViewValue);
-    router.push(
-      {
-        pathname: router.pathname,
-        query: Object.fromEntries(searchParams),
-      },
-      undefined,
-      { shallow: true }
-    );
-  };
-
-  const handlePage = (page) => {
-    handlePageChange(page, router, searchParams, setCurrentPage);
-  };
-
   return (
-    <div
-      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
-        loading ? "pulse-border" : ""
-      }`}
-    >
+    <div className="container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white">
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
-        Fetched Cleveland Artifacts
+        {artistSearch
+          ? `Search Results for "${artistSearch}"`
+          : "Fetched Cleveland Artifacts"}
       </h1>
 
-      {/* Sorting, Search, & Filter Controls in One Row */}
+      {/* Sorting, Search, and Toggle in the Same UI Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm gap-3">
         {/* Sorting Dropdown */}
         <div className="flex items-center space-x-2">
           <p className="font-semibold text-gray-900">Sort:</p>
           <select
             id="sort-select"
-            onChange={handleSort}
+            onChange={(e) => handleSortChange(e, router, searchParams)}
             value={titleSortByQuery}
-            className="border border-gray-400 rounded-md px-3 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700"
+            className="border border-gray-400 rounded-md px-3 py-1 bg-white text-gray-800"
           >
             <option value="asc">A-Z</option>
             <option value="desc">Z-A</option>
@@ -186,21 +195,30 @@ export default function ArtifactContainer({
           <input
             type="text"
             value={artistSearch}
-            onChange={(e) => setArtistSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && artistSearch.trim()) {
-                router.push(`/artifacts/SearchResults?artist=${encodeURIComponent(artistSearch)}`);
-              }
+            onChange={(e) => {
+              setArtistSearch(e.target.value);
             }}
-            className="px-4 py-2 border border-gray-400 rounded-md"
-            placeholder="Search for ..."
+            className="px-4 py-2 border border-gray-400 rounded-md text-black"
+            placeholder="Search for an artist..."
           />
         </div>
 
         {/* Toggle Button for "Currently on View Feature" */}
         <button
-          onClick={handleOnViewToggle}
-          className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
+          onClick={() => {
+            const newOnViewValue =
+              currentlyOnViewQuery === "true" ? "false" : "true";
+            searchParams.set("currently_on_view", newOnViewValue);
+            router.push(
+              {
+                pathname: router.pathname,
+                query: Object.fromEntries(searchParams),
+              },
+              undefined,
+              { shallow: true }
+            );
+          }}
+          className="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-800"
         >
           {currentlyOnViewQuery === "true"
             ? "On View ✅"
@@ -208,41 +226,41 @@ export default function ArtifactContainer({
         </button>
       </div>
 
-      {/* Show only if an error occurs */}
-      {fetchError && (
-        <p className="text-red-600 text-center">
-          {fetchError} {statusCode && `(Error Code: ${statusCode})`}
-        </p>
-      )}
+      {/* Show errors properly */}
+      {fetchError && <p className="text-red-600 text-center">{fetchError}</p>}
 
-      {/* Show loading when fetching */}
-      {loading && (
-        <div className="flex justify-center items-center space-x-2">
+      {/* Loading Indicator */}
+      {loading ? (
+        <div className="flex justify-center items-center">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {currentArtifacts.length > 0 ? (
+            currentArtifacts.map((artifact) => (
+              <div
+                key={artifact.id}
+                className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <ArtifactCard artifact={artifact} />
+              </div>
+            ))
+          ) : (
+            <p className="text-red-600 col-span-full text-center">
+              No artifacts found
+            </p>
+          )}
         </div>
       )}
 
-      {/* Render Artifacts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {currentArtifacts.length > 0 ? (
-          currentArtifacts.map((artifact) => (
-            <div
-              key={artifact.id}
-              className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-            >
-              <ArtifactCard artifact={artifact} />
-            </div>
-          ))
-        ) : (
-          <p className="text-red-600 col-span-full text-center">
-            No artifacts found
-          </p>
-        )}
-      </div>
-
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="mt-6 flex justify-center">
-        <PaginationControls currentPage={currentPage} handlePageChange={handlePage} />
+        <PaginationControls
+          currentPage={currentPage}
+          handlePageChange={(page) =>
+            handlePageChange(page, router, searchParams, setCurrentPage)
+          }
+        />
       </div>
     </div>
   );

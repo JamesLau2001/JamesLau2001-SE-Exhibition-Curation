@@ -144,7 +144,7 @@ export default function SavedArtifacts() {
         {/* Next Button */}
         <button
           onClick={() => handlePageChange(1)}
-          disabled={currentPage === totalPages || isLastPage}
+          disabled={currentPage === totalPages || isLastPage || artifactDetails.length === 0}
           className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
         >
           Next
