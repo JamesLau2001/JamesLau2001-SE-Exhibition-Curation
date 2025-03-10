@@ -145,7 +145,11 @@ export default function SavedArtifacts() {
         <button
           onClick={() => handlePageChange(1)}
           disabled={currentPage === totalPages || isLastPage || artifactDetails.length === 0}
-          className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
+          className={`px-4 py-2 rounded-md font-medium transition border ${
+            currentPage === totalPages || isLastPage || artifactDetails.length === 0
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
+              : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
+          }`}
         >
           Next
         </button>
