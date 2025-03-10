@@ -1,23 +1,34 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { fetchChicagoArtifacts } from "../api/chicagoApiCalls";
+import { fetchChicagoArtifacts, fetchChicagoArtifactsByArtist } from "../api/chicagoApiCalls";
 import ChicagoArtifactCard from "../components/ChicagoArtifactCard";
 import { handlePageChange } from "@/utils/paginationControls";
 import { handleSortChange } from "@/utils/handleSortChange";
 import PaginationControls from "../components/PaginationControls";
 import FilterOnViewControls from "../components/ToggleOnViewControl";
+import { useDebounce } from "@/utils/useDebounce"; 
 
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "false";
+  const artistQuery = query.artist || ""; 
   const currentPage = parseInt(query.page, 10) || 1;
 
   try {
-    const artifacts = await fetchChicagoArtifacts({
-      title: titleSortByQuery,
-      currentlyOnView: currentlyOnViewQuery,
-      page: currentPage,
-    });
+    let artifacts;
+    if (artistQuery) {
+      artifacts = await fetchChicagoArtifactsByArtist(
+        artistQuery,
+        currentPage,
+        20
+      );
+    } else {
+      artifacts = await fetchChicagoArtifacts({
+        title: titleSortByQuery,
+        currentlyOnView: currentlyOnViewQuery,
+        page: currentPage,
+      });
+    }
 
     if (artifacts?.error) {
       return {
@@ -28,6 +39,7 @@ export async function getServerSideProps({ query }) {
           initialTitleSort: titleSortByQuery,
           initialOnView: currentlyOnViewQuery,
           initialPage: currentPage,
+          initialArtist: artistQuery, 
         },
       };
     }
@@ -38,6 +50,7 @@ export async function getServerSideProps({ query }) {
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
+        initialArtist: artistQuery, 
         error: null,
         statusCode: null,
       },
@@ -51,6 +64,7 @@ export async function getServerSideProps({ query }) {
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
+        initialArtist: "",
       },
     };
   }
@@ -63,6 +77,7 @@ export default function ArtifactContainer({
   initialPage,
   error,
   statusCode,
+  initialArtist,
 }) {
   const router = useRouter();
   const searchParams = new URLSearchParams(router.query);
@@ -72,6 +87,9 @@ export default function ArtifactContainer({
   const [fetchError, setFetchError] = useState(error || null);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [currentlyOnView, setCurrentlyOnView] = useState(initialOnView);
+  const [artistSearch, setArtistSearch] = useState(initialArtist || ""); 
+
+  const debouncedArtistSearch = useDebounce(artistSearch, 300);  
 
   const titleSortByQuery = searchParams.get("title") || initialTitleSort;
   const pageQuery = parseInt(searchParams.get("page"), 10) || initialPage;
@@ -83,11 +101,22 @@ export default function ArtifactContainer({
 
     const fetchAndSortArtifacts = async () => {
       try {
-        const updatedArtifacts = await fetchChicagoArtifacts({
-          title: titleSortByQuery,
-          currentlyOnView,
-          page: pageQuery,
-        });
+        let updatedArtifacts;
+
+        
+        if (debouncedArtistSearch.trim().length > 0) {
+          updatedArtifacts = await fetchChicagoArtifactsByArtist(
+            debouncedArtistSearch,
+            pageQuery,
+            20
+          );
+        } else {
+          updatedArtifacts = await fetchChicagoArtifacts({
+            title: titleSortByQuery,
+            currentlyOnView,
+            page: pageQuery,
+          });
+        }
 
         if (updatedArtifacts?.error) {
           setFetchError(updatedArtifacts.message);
@@ -112,7 +141,7 @@ export default function ArtifactContainer({
     };
 
     fetchAndSortArtifacts();
-  }, [titleSortByQuery, currentlyOnView, pageQuery]);
+  }, [debouncedArtistSearch, titleSortByQuery, currentlyOnView, pageQuery]);
 
   const handleSort = (event) => {
     handleSortChange(event, router, searchParams);
@@ -136,12 +165,23 @@ export default function ArtifactContainer({
     handlePageChange(page, router, searchParams, setCurrentPage);
   };
 
+  const handleSearchChange = (e) => {
+    setArtistSearch(e.target.value); 
+    searchParams.set("artist", e.target.value.trim()); 
+    router.push(
+      {
+        pathname: router.pathname,
+        query: Object.fromEntries(searchParams),
+      },
+      undefined,
+      { shallow: true }
+    );
+  };
+
   return (
-    <div className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
-      loading ? "pulse-border" : ""
-    }`}>
+    <div className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${loading ? "pulse-border" : ""}`}>
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
-        Fetched Chicago Artifacts
+        {artistSearch ? `Search Results for "${artistSearch}"` : "Fetched Chicago Artifacts"}
       </h1>
 
       {/* Sorting & Filter Controls */}
@@ -160,6 +200,17 @@ export default function ArtifactContainer({
             <option value="asc">A-Z</option>
             <option value="desc">Z-A</option>
           </select>
+        </div>
+
+        {/* Search Bar */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={artistSearch}
+            onChange={handleSearchChange} 
+            className="px-4 py-2 border border-gray-400 rounded-md text-black"
+            placeholder="Search for an artist..."
+          />
         </div>
 
         {/* Toggle Button for "Currently on View Feature" */}
