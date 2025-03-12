@@ -156,7 +156,14 @@ export default function ArtifactContainer({
       setCurrentPage(initialPage);
       setLoading(false);
     }
-  }, [debouncedArtistSearch, titleSortByQuery, currentlyOnView, pageQuery, artifacts, initialPage]);
+  }, [
+    debouncedArtistSearch,
+    titleSortByQuery,
+    currentlyOnView,
+    pageQuery,
+    artifacts,
+    initialPage,
+  ]);
 
   const handleSort = (event) => {
     handleSortChange(event, router, searchParams);
@@ -194,7 +201,7 @@ export default function ArtifactContainer({
   };
 
   return (
-    <div className="container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white">
+    <div className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${loading ? "pulse-border" : ""}`}>
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
         {artistSearch
           ? `Search Results for "${artistSearch}"`
@@ -229,7 +236,9 @@ export default function ArtifactContainer({
           onClick={handleOnViewToggle}
           className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
         >
-          {currentlyOnView === "true" ? "On View ✅" : "Show Available at Museum"}
+          {currentlyOnView === "true"
+            ? "On View ✅"
+            : "Show Available at Museum"}
         </button>
       </div>
 
@@ -259,7 +268,10 @@ export default function ArtifactContainer({
       )}
 
       <div className="mt-6 flex justify-center">
-        <PaginationControls currentPage={currentPage} handlePageChange={handlePage} />
+        <PaginationControls
+          currentPage={currentPage}
+          handlePageChange={handlePage}
+        />
       </div>
     </div>
   );
