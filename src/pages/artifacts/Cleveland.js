@@ -13,7 +13,7 @@ import { useDebounce } from "@/utils/useDebounce";
 export async function getServerSideProps({ query }) {
   console.log("Query parameters received in getServerSideProps:", query);
   const titleSortByQuery = query.title || "asc";
-  const currentlyOnViewQuery = query.currently_on_view || "";
+  const currentlyOnViewQuery = query.currently_on_view || "false";
   const artistQuery = query.artist || "";
   const currentPage = parseInt(query.page, 10) || 1;
 
