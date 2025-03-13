@@ -25,6 +25,7 @@ export async function fetchClevelandArtifacts({
     }
 
     const data = await response.json();
+
     return data.data || [];
   } catch (error) {
     console.error("Fetch Error:", error.message);
@@ -69,11 +70,17 @@ export async function fetchClevelandArtifactById(id) {
   }
 }
 
-export async function fetchClevelandArtifactsByArtist(artist, page = 1, limit = 20) {
+export async function fetchClevelandArtifactsByArtist(
+  artist,
+  page = 1,
+  limit = 20
+) {
   if (!artist.trim()) return [];
 
   const skip = (page - 1) * limit;
-  const url = `https://openaccess-api.clevelandart.org/api/artworks?limit=${limit}&skip=${skip}&has_image=1&q=${encodeURIComponent(artist)}`;
+  const url = `https://openaccess-api.clevelandart.org/api/artworks?limit=${limit}&skip=${skip}&has_image=1&q=${encodeURIComponent(
+    artist
+  )}`;
 
   try {
     const response = await fetch(url);
@@ -85,4 +92,3 @@ export async function fetchClevelandArtifactsByArtist(artist, page = 1, limit = 
     return { error: true, message: error.message };
   }
 }
-

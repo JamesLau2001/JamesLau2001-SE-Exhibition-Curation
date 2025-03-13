@@ -11,6 +11,7 @@ import PaginationControls from "../components/PaginationControls";
 import { useDebounce } from "@/utils/useDebounce";
 
 export async function getServerSideProps({ query }) {
+  console.log("Query parameters received in getServerSideProps:", query);
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "";
   const artistQuery = query.artist || "";
@@ -101,7 +102,7 @@ export default function ArtifactContainer({
     setLoading(true);
     setFetchError(null);
 
-    if (pageQuery > 1 || debouncedArtistSearch.trim().length > 0) {
+    if (pageQuery !== initialPage || debouncedArtistSearch.trim().length > 0) {
       const fetchAndSortArtifacts = async () => {
         try {
           let updatedArtifacts;
@@ -187,9 +188,23 @@ export default function ArtifactContainer({
     handlePageChange(page, router, searchParams, setCurrentPage);
   };
 
+  const [lastPageBeforeSearch, setLastPageBeforeSearch] = useState(initialPage);
+
   const handleSearchChange = (e) => {
-    setArtistSearch(e.target.value);
-    searchParams.set("artist", e.target.value.trim());
+    const newSearch = e.target.value.trim();
+    setArtistSearch(newSearch);
+
+    if (newSearch.length > 0) {
+      if (!artistSearch) {
+        setLastPageBeforeSearch(currentPage); // Store the last page before searching
+      }
+      searchParams.set("artist", newSearch);
+      searchParams.set("page", "1"); // Reset to page 1 for new search
+    } else {
+      searchParams.delete("artist");
+      searchParams.set("page", lastPageBeforeSearch.toString()); // Restore previous page
+    }
+
     router.push(
       {
         pathname: router.pathname,
@@ -201,7 +216,11 @@ export default function ArtifactContainer({
   };
 
   return (
-    <div className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${loading ? "pulse-border" : ""}`}>
+    <div
+      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
+        loading ? "pulse-border" : ""
+      }`}
+    >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
         {artistSearch
           ? `Search Results for "${artistSearch}"`
@@ -242,7 +261,11 @@ export default function ArtifactContainer({
         </button>
       </div>
 
-      {fetchError && <p className="text-red-600 text-center">{fetchError}</p>}
+      {fetchError && (
+        <p className="text-red-600 text-center">
+          {fetchError} {statusCode && `(Error Code: ${statusCode})`}
+        </p>
+      )}
 
       {loading ? (
         <div className="flex justify-center items-center">

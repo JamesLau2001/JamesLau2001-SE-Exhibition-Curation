@@ -1,17 +1,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { fetchChicagoArtifacts, fetchChicagoArtifactsByArtist } from "../api/chicagoApiCalls";
+import {
+  fetchChicagoArtifacts,
+  fetchChicagoArtifactsByArtist,
+} from "../api/chicagoApiCalls";
 import ChicagoArtifactCard from "../components/ChicagoArtifactCard";
 import { handlePageChange } from "@/utils/paginationControls";
 import { handleSortChange } from "@/utils/handleSortChange";
 import PaginationControls from "../components/PaginationControls";
 import FilterOnViewControls from "../components/ToggleOnViewControl";
-import { useDebounce } from "@/utils/useDebounce"; 
+import { useDebounce } from "@/utils/useDebounce";
 
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "false";
-  const artistQuery = query.artist || ""; 
+  const artistQuery = query.artist || "";
   const currentPage = parseInt(query.page, 10) || 1;
 
   try {
@@ -39,7 +42,7 @@ export async function getServerSideProps({ query }) {
           initialTitleSort: titleSortByQuery,
           initialOnView: currentlyOnViewQuery,
           initialPage: currentPage,
-          initialArtist: artistQuery, 
+          initialArtist: artistQuery,
         },
       };
     }
@@ -50,7 +53,7 @@ export async function getServerSideProps({ query }) {
         initialTitleSort: titleSortByQuery,
         initialOnView: currentlyOnViewQuery,
         initialPage: currentPage,
-        initialArtist: artistQuery, 
+        initialArtist: artistQuery,
         error: null,
         statusCode: null,
       },
@@ -87,9 +90,9 @@ export default function ArtifactContainer({
   const [fetchError, setFetchError] = useState(error || null);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [currentlyOnView, setCurrentlyOnView] = useState(initialOnView);
-  const [artistSearch, setArtistSearch] = useState(initialArtist || ""); 
+  const [artistSearch, setArtistSearch] = useState(initialArtist || "");
 
-  const debouncedArtistSearch = useDebounce(artistSearch, 300);  
+  const debouncedArtistSearch = useDebounce(artistSearch, 300);
 
   const titleSortByQuery = searchParams.get("title") || initialTitleSort;
   const pageQuery = parseInt(searchParams.get("page"), 10) || initialPage;
@@ -103,7 +106,6 @@ export default function ArtifactContainer({
       try {
         let updatedArtifacts;
 
-        
         if (debouncedArtistSearch.trim().length > 0) {
           updatedArtifacts = await fetchChicagoArtifactsByArtist(
             debouncedArtistSearch,
@@ -165,9 +167,23 @@ export default function ArtifactContainer({
     handlePageChange(page, router, searchParams, setCurrentPage);
   };
 
+  const [lastPageBeforeSearch, setLastPageBeforeSearch] = useState(initialPage);
+
   const handleSearchChange = (e) => {
-    setArtistSearch(e.target.value); 
-    searchParams.set("artist", e.target.value.trim()); 
+    const newSearch = e.target.value.trim();
+    setArtistSearch(newSearch);
+
+    if (newSearch.length > 0) {
+      if (!artistSearch) {
+        setLastPageBeforeSearch(currentPage); // Store the last page before searching
+      }
+      searchParams.set("artist", newSearch);
+      searchParams.set("page", "1"); // Reset to page 1 for new search
+    } else {
+      searchParams.delete("artist");
+      searchParams.set("page", lastPageBeforeSearch.toString()); // Restore previous page
+    }
+
     router.push(
       {
         pathname: router.pathname,
@@ -179,9 +195,15 @@ export default function ArtifactContainer({
   };
 
   return (
-    <div className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${loading ? "pulse-border" : ""}`}>
+    <div
+      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
+        loading ? "pulse-border" : ""
+      }`}
+    >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
-        {artistSearch ? `Search Results for "${artistSearch}"` : "Fetched Chicago Artifacts"}
+        {artistSearch
+          ? `Search Results for "${artistSearch}"`
+          : "Fetched Chicago Artifacts"}
       </h1>
 
       {/* Sorting & Filter Controls */}
@@ -207,7 +229,7 @@ export default function ArtifactContainer({
           <input
             type="text"
             value={artistSearch}
-            onChange={handleSearchChange} 
+            onChange={handleSearchChange}
             className="px-4 py-2 border border-gray-400 rounded-md text-black"
             placeholder="Search for an artist..."
           />
@@ -250,7 +272,9 @@ export default function ArtifactContainer({
             </div>
           ))
         ) : (
-          <p className="text-red-600 col-span-full text-center">No artifacts found</p>
+          <p className="text-red-600 col-span-full text-center">
+            No artifacts found
+          </p>
         )}
       </div>
 
@@ -258,9 +282,7 @@ export default function ArtifactContainer({
       <div className="mt-6 flex justify-center">
         <PaginationControls
           currentPage={currentPage}
-          handlePageChange={(page) =>
-            handlePage(page, router, searchParams, setCurrentPage)
-          }
+          handlePageChange={handlePage}
         />
       </div>
     </div>
