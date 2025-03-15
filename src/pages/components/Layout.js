@@ -11,7 +11,7 @@ export default function Layout({ children }) {
       <Link href="/">
         <header className="py-6">
           <h1 className="text-4xl font-bold text-gray-900 text-center">
-            My Exhibition Platform
+            The Exhibition Curation Platform
           </h1>
         </header>
       </Link>

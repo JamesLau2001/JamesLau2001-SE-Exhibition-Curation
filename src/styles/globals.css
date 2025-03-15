@@ -35,3 +35,7 @@ body {
 .pulse-border {
   animation: pulse-border 1.5s infinite ease-in-out;
 }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

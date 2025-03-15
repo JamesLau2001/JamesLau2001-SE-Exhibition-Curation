@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { fetchClevelandArtifactsByArtist } from "../api/clevelandApiCalls";
 import ArtifactCard from "../components/ClevelandArtifactCard";
 import PaginationControls from "../components/PaginationControls";
-import { handlePageChange } from "@/utils/paginationControls"; // ✅ Import the utility function
+import { handlePageChange } from "@/utils/paginationControls"; 
 
 export default function SearchResults() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
-  // Fetch search results when the artist or page number changes
+  
   useEffect(() => {
     if (!artist) return;
 
@@ -63,7 +63,7 @@ export default function SearchResults() {
       <div className="mt-6 flex justify-center">
         <PaginationControls
           currentPage={currentPage}
-          handlePageChange={(page) => handlePageChange(page, router, searchParams, () => {})} // ✅ Uses the existing function
+          handlePageChange={(page) => handlePageChange(page, router, searchParams, () => {})}
         />
       </div>
     </div>

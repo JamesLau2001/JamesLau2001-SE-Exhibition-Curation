@@ -84,7 +84,9 @@ export default function ArtifactPage({
   if (loading)
     return <p className="text-center text-lg font-medium">Loading...</p>;
   if (!artifact)
-    return <p className="text-center text-lg font-medium">Artifact not found.</p>;
+    return (
+      <p className="text-center text-lg font-medium">Artifact not found.</p>
+    );
 
   const handleSave = () => {
     if (savedArtifacts.includes(initialArtifact.id)) {
@@ -93,7 +95,10 @@ export default function ArtifactPage({
       addSavedArtifact(initialArtifact.id);
     }
   };
-
+  const stripHtmlTags = (html) => {
+    if (!html) return "No description available.";
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
   return (
     <article className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold text-center text-gray-900" tabIndex="0">
@@ -124,12 +129,14 @@ export default function ArtifactPage({
       <section className="mt-4">
         <h2 className="text-xl font-semibold text-gray-800">Description</h2>
         <p className="text-gray-700 mt-2">
-          {artifact.description || "No description available."}
+          {stripHtmlTags(artifact.description) || "No description available."}
         </p>
       </section>
 
       <section className="mt-4">
-        <h2 className="text-xl font-semibold text-gray-800">Artifact Details</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Artifact Details
+        </h2>
         <p className="text-gray-700 mt-2">
           <strong>Created by:</strong>{" "}
           {artifact.creators?.[0]?.description || "Unknown"}

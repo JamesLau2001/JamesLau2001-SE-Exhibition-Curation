@@ -165,6 +165,7 @@ export default function ArtifactContainer({
     pageQuery,
     artifacts,
     initialPage,
+    artistSearch
   ]);
 
   const handleSort = (event) => {
@@ -224,8 +225,8 @@ export default function ArtifactContainer({
     >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
         {artistSearch
-          ? `Search Results for "${artistSearch}"`
-          : "Fetched Cleveland Artifacts"}
+          ? `Showing Artifacts Of Search Results for: "${artistSearch}"`
+          : "Showing Artifacts For: The Cleveland Museum of Arts"}
       </h1>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm">

@@ -202,8 +202,8 @@ export default function ArtifactContainer({
     >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
         {artistSearch
-          ? `Search Results for "${artistSearch}"`
-          : "Fetched Chicago Artifacts"}
+          ? `Showing Artifacts Of Search Results for: "${artistSearch}"`
+          : "Showing Artifacts For: Art Institute of Chicago"}
       </h1>
 
       {/* Sorting & Filter Controls */}
