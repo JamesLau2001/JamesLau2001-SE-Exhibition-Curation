@@ -102,18 +102,19 @@ export default function ArtifactContainer({
     setLoading(true);
     setFetchError(null);
 
-    if (pageQuery !== initialPage || debouncedArtistSearch.trim().length > 0) {
+    if (pageQuery !== initialPage || debouncedArtistSearch.trim().length > 0 ) {
       const fetchAndSortArtifacts = async () => {
         try {
           let updatedArtifacts;
 
-          if (debouncedArtistSearch.trim().length > 0) {
+          if (debouncedArtistSearch.trim().length > 0 || artistSearch !== "") {
             updatedArtifacts = await fetchClevelandArtifactsByArtist(
-              debouncedArtistSearch,
+              debouncedArtistSearch.trim().length > 0 ? debouncedArtistSearch : artistSearch, 
               pageQuery,
               20
             );
-          } else {
+          }
+          else {
             updatedArtifacts = await fetchClevelandArtifacts({
               title: titleSortByQuery,
               currentlyOnView,

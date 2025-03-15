@@ -7,7 +7,7 @@ const PaginationControls = ({ currentPage, handlePageChange }) => {
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`px-4 py-2 rounded-md font-medium transition border ${
+        className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
           currentPage === 1
             ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
             : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"

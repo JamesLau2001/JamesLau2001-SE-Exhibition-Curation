@@ -12,22 +12,21 @@ export default function SavedArtifacts() {
   const { savedChicagoArtifacts } = useSavedChicagoArtifacts();
   const [artifactDetails, setArtifactDetails] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // Added loading state
-  const [currentPage, setCurrentPage] = useState(1); // For pagination
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const itemsPerPage = 20; // Set the number of items per page
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const fetchArtifacts = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
         console.log("Fetching artifacts for IDs:", [
           ...savedArtifacts,
           ...savedChicagoArtifacts,
         ]);
 
-        // Calculate skip based on the current page
         const skip = (currentPage - 1) * itemsPerPage;
 
         const clevelandDetails = await Promise.all(
@@ -42,25 +41,32 @@ export default function SavedArtifacts() {
         );
 
         const chicagoDetails = await Promise.all(
-          savedChicagoArtifacts.slice(skip, skip + itemsPerPage).map(async (id) => {
-            try {
-              const data = await fetchChicagoArtifactById(id);
-              return { ...data, source: "chicago" };
-            } catch {
-              return null;
-            }
-          })
+          savedChicagoArtifacts
+            .slice(skip, skip + itemsPerPage)
+            .map(async (id) => {
+              try {
+                const data = await fetchChicagoArtifactById(id);
+                return { ...data, source: "chicago" };
+              } catch {
+                return null;
+              }
+            })
         );
 
         setArtifactDetails(
           [...clevelandDetails, ...chicagoDetails].filter(Boolean)
         );
-        setTotalPages(Math.ceil((savedArtifacts.length + savedChicagoArtifacts.length) / itemsPerPage));
+        setTotalPages(
+          Math.ceil(
+            (savedArtifacts.length + savedChicagoArtifacts.length) /
+              itemsPerPage
+          )
+        );
       } catch (err) {
         console.error("Error in fetchArtifacts:", err);
         setError("There was an error fetching the artifacts.");
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
@@ -69,9 +75,10 @@ export default function SavedArtifacts() {
     }
   }, [savedArtifacts, savedChicagoArtifacts, currentPage]);
 
-  // Function to handle page change
   const handlePageChange = (direction) => {
-    setCurrentPage((prev) => Math.min(Math.max(prev + direction, 1), totalPages));
+    setCurrentPage((prev) =>
+      Math.min(Math.max(prev + direction, 1), totalPages)
+    );
   };
 
   const isLastPage = artifactDetails.length < itemsPerPage;
@@ -79,7 +86,7 @@ export default function SavedArtifacts() {
   return (
     <div
       className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
-        loading ? "pulse-border" : "" // Apply pulse-border when loading
+        loading ? "pulse-border" : ""
       }`}
     >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
@@ -124,12 +131,12 @@ export default function SavedArtifacts() {
       ) : null}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center mt-6 space-x-4">
+      <div className="flex items-center justify-center space-x-4 mt-6">
         {/* Previous Button */}
         <button
           onClick={() => handlePageChange(-1)}
           disabled={currentPage === 1}
-          className={`px-4 py-2 rounded-md font-medium transition border ${
+          className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
             currentPage === 1
               ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
               : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
@@ -139,14 +146,22 @@ export default function SavedArtifacts() {
         </button>
 
         {/* Page Number */}
-        <span className="text-lg font-semibold text-gray-900">{currentPage}</span>
+        <span className="text-lg font-semibold text-gray-900">
+          {currentPage}
+        </span>
 
         {/* Next Button */}
         <button
           onClick={() => handlePageChange(1)}
-          disabled={currentPage === totalPages || isLastPage || artifactDetails.length === 0}
-          className={`px-4 py-2 rounded-md font-medium transition border ${
-            currentPage === totalPages || isLastPage || artifactDetails.length === 0
+          disabled={
+            currentPage === totalPages ||
+            isLastPage ||
+            artifactDetails.length === 0
+          }
+          className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
+            currentPage === totalPages ||
+            isLastPage ||
+            artifactDetails.length === 0
               ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
               : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
           }`}

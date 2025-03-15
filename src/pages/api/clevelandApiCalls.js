@@ -77,18 +77,38 @@ export async function fetchClevelandArtifactsByArtist(
 ) {
   if (!artist.trim()) return [];
 
-  const skip = (page - 1) * limit;
-  const url = `https://openaccess-api.clevelandart.org/api/artworks?limit=${limit}&skip=${skip}&has_image=1&q=${encodeURIComponent(
+  const baseUrl =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+      : "";
+
+  const url = `${baseUrl}/api/clevelandArtistProxy?artist=${encodeURIComponent(
     artist
-  )}`;
+  )}&page=${page}&limit=${limit}`;
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch artist artifacts");
+    console.log("Making API request to:", url);
+    const response = await fetch(url, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      console.error("HTTP error! Status:", response.status);
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     const data = await response.json();
-    return data.data || [];
+    console.log("Fetched data:", data);
+
+    if (data.data && data.data.length > 0) {
+      console.log("Data contains artifacts:", data.data);
+      return data.data;
+    } else {
+      console.log("No artifacts found for artist:", artist);
+      return [];
+    }
   } catch (error) {
-    console.error("Artist Search Fetch Error:", error);
+    console.error("Fetch Error:", error.message);
     return { error: true, message: error.message };
   }
 }

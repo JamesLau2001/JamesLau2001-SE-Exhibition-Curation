@@ -53,12 +53,17 @@ export async function fetchChicagoArtifactById(id) {
   }
 }
 
-
-export async function fetchChicagoArtifactsByArtist(artist, page = 1, limit = 20) {
+export async function fetchChicagoArtifactsByArtist(
+  artist,
+  page = 1,
+  limit = 20
+) {
   if (!artist.trim()) return [];
 
   let fields = `fields=id,title,image_id,date_display,artist_title,gallery_title,description`;
-  const url = `https://api.artic.edu/api/v1/artworks/search?page=${page}&limit=${limit}&${fields}&q=${encodeURIComponent(artist)}`;
+  const url = `https://api.artic.edu/api/v1/artworks/search?page=${page}&limit=${limit}&${fields}&q=${encodeURIComponent(
+    artist
+  )}`;
 
   try {
     const response = await fetch(url);
@@ -74,5 +79,3 @@ export async function fetchChicagoArtifactsByArtist(artist, page = 1, limit = 20
     return { error: true, message: error.message };
   }
 }
-
-
