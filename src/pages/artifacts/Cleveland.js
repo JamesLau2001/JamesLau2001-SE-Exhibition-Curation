@@ -102,19 +102,20 @@ export default function ArtifactContainer({
     setLoading(true);
     setFetchError(null);
 
-    if (pageQuery !== initialPage || debouncedArtistSearch.trim().length > 0 ) {
+    if (pageQuery !== initialPage || debouncedArtistSearch.trim().length > 0) {
       const fetchAndSortArtifacts = async () => {
         try {
           let updatedArtifacts;
 
           if (debouncedArtistSearch.trim().length > 0 || artistSearch !== "") {
             updatedArtifacts = await fetchClevelandArtifactsByArtist(
-              debouncedArtistSearch.trim().length > 0 ? debouncedArtistSearch : artistSearch, 
+              debouncedArtistSearch.trim().length > 0
+                ? debouncedArtistSearch
+                : artistSearch,
               pageQuery,
               20
             );
-          }
-          else {
+          } else {
             updatedArtifacts = await fetchClevelandArtifacts({
               title: titleSortByQuery,
               currentlyOnView,
@@ -165,7 +166,7 @@ export default function ArtifactContainer({
     pageQuery,
     artifacts,
     initialPage,
-    artistSearch
+    artistSearch,
   ]);
 
   const handleSort = (event) => {
@@ -253,14 +254,17 @@ export default function ArtifactContainer({
           />
         </div>
 
-        <button
-          onClick={handleOnViewToggle}
-          className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
-        >
-          {currentlyOnView === "true"
-            ? "On View ✅"
-            : "Show Available at Museum"}
-        </button>
+        <div className="flex items-center space-x-2">
+          <p className="font-semibold text-gray-900">Toggle:</p>
+          <button
+            onClick={handleOnViewToggle}
+            className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 min-w-[200px]"
+          >
+            {currentlyOnView === "true"
+              ? "All Artifacts"
+              : "Available at Museum"}
+          </button>
+        </div>
       </div>
 
       {fetchError && (

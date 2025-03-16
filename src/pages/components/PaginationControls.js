@@ -1,6 +1,10 @@
 import React from "react";
 
-const PaginationControls = ({ currentPage, handlePageChange, currentArtifacts }) => {
+const PaginationControls = ({
+  currentPage,
+  handlePageChange,
+  currentArtifacts,
+}) => {
   return (
     <div className="flex items-center justify-center space-x-4 mt-6">
       {/* Previous Button */}
@@ -17,7 +21,9 @@ const PaginationControls = ({ currentPage, handlePageChange, currentArtifacts })
       </button>
 
       {/* Page Number */}
-      <span className="text-lg font-semibold text-gray-900">Page {currentPage}</span>
+      <span className="text-lg font-semibold text-gray-900">
+        Page {currentPage}
+      </span>
 
       {/* Next Button */}
       <button

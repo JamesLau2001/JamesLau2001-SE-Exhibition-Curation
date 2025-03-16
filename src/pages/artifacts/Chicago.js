@@ -236,14 +236,17 @@ export default function ArtifactContainer({
         </div>
 
         {/* Toggle Button for "Currently on View Feature" */}
-        <button
-          onClick={handleOnViewToggle}
-          className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700"
-        >
-          {currentlyOnView === "true"
-            ? "On View ✅"
-            : "Show Available at Museum"}
-        </button>
+        <div className="flex items-center space-x-2">
+          <p className="font-semibold text-gray-900">Toggle:</p>
+          <button
+            onClick={handleOnViewToggle}
+            className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 min-w-[200px]"
+          >
+            {currentlyOnView === "true"
+              ? "All Artifacts"
+              : "Available at Museum"}
+          </button>
+        </div>
       </div>
 
       {/* Show only if an error occurs */}
@@ -283,6 +286,7 @@ export default function ArtifactContainer({
         <PaginationControls
           currentPage={currentPage}
           handlePageChange={handlePage}
+          currentArtifacts={currentArtifacts}
         />
       </div>
     </div>
