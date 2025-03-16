@@ -296,6 +296,7 @@ export default function ArtifactContainer({
         <PaginationControls
           currentPage={currentPage}
           handlePageChange={handlePage}
+          currentArtifacts={currentArtifacts}
         />
       </div>
     </div>
