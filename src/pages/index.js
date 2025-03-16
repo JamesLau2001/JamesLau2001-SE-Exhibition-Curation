@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center p-6 font-roboto mt-40">
+    <div className="flex flex-col items-center justify-center p-6 font-roboto mt-10">
       <h1 className="text-4xl font-bold text-gray-900 text-center">
         Welcome to the Exhibition Curator
       </h1>
@@ -17,8 +17,8 @@ export default function Home() {
           <Image
             src="/Images/cma-logo-black-trans.png"
             alt="Cleveland Museum of Art"
-            width={200}
-            height={100}
+            width={500}
+            height={400}
             className="cursor-pointer shadow-md transition-transform transform hover:scale-105 hover:shadow-lg"
           />
         </Link>
@@ -26,8 +26,8 @@ export default function Home() {
           <Image
             src="/Images/Art_Institute_of_Chicago_logo.svg.png"
             alt="Art Institute of Chicago"
-            width={200}
-            height={100}
+            width={500}
+            height={400}
             className="cursor-pointer shadow-md transition-transform transform hover:scale-105 hover:shadow-lg"
           />
         </Link>
