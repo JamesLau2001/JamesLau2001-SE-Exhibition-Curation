@@ -14,7 +14,7 @@ export default function Home() {
 
       <div className="mt-6 flex space-x-8 justify-center">
         <Link href="/artifacts/Cleveland">
-          <div className="flex flex-col items-center shadow-lg rounded-xl p-4 transition-transform transform hover:scale-105 hover:shadow-2xl border-2 border-gray-300">
+          <div className="flex flex-col items-center shadow-lg rounded-xl p-4 transition-transform transform hover:scale-105 hover:shadow-2xl border-2 border-gray-300 bg-gray-300">
             <Image
               src="/Images/cma-logo-black-trans.png"
               alt="Cleveland Museum of Art"
@@ -29,7 +29,7 @@ export default function Home() {
         </Link>
 
         <Link href="/artifacts/Chicago">
-          <div className="flex flex-col items-center shadow-lg rounded-xl p-4 transition-transform transform hover:scale-105 hover:shadow-2xl border-2 border-gray-300">
+          <div className="flex flex-col items-center shadow-lg rounded-xl p-4 transition-transform transform hover:scale-105 hover:shadow-2xl border-2 border-gray-300 bg-gray-300">
             <Image
               src="/Images/Art_Institute_of_Chicago_logo.svg.png"
               alt="Art Institute of Chicago"

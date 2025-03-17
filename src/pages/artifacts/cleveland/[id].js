@@ -109,13 +109,7 @@ export default function ArtifactPage({
         <div className="flex justify-center my-4">
           <Image
             src={artifact.images.web.url}
-            alt={
-              artifact.title
-                ? `Image of ${artifact.title} by ${
-                    artifact.creators?.[0]?.description || "Unknown Creator"
-                  }`
-                : "No Image Available"
-            }
+            alt={`Image of ${artifact.title || "Untitled"}`}
             width={500}
             height={500}
             className="rounded-lg shadow-lg"

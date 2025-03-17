@@ -9,13 +9,7 @@ const ArtifactCard = ({ artifact }) => {
           {artifact?.images?.web?.url ? (
             <Image
               src={artifact.images.web.url}
-              alt={
-                artifact.title
-                  ? `Image of ${artifact.title} by ${
-                      artifact.creators?.[0]?.description || "Unknown Creator"
-                    }`
-                  : "No Image Available"
-              }
+              alt={`Image of ${artifact.title || "Untitled"}`}
               width={400}
               height={300}
               className="w-full h-60 object-contain"

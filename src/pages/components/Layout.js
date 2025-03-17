@@ -20,14 +20,17 @@ export default function Layout({ children }) {
         <nav className="sticky top-0 container mx-auto p-6 border-2 border-gray-300 rounded-lg shadow-xl bg-white z-10 mt-6">
           <ul className="flex justify-between items-center max-w-4xl mx-auto">
             <li>
-              <Link href="/" className="text-blue-500 hover:underline text-lg font-medium">
+              <Link
+                href="/"
+                className="text-blue-800 hover:underline text-lg font-medium"
+              >
                 Home
               </Link>
             </li>
             <li>
               <Link
                 href="/artifacts/SavedArtifacts"
-                className="text-blue-500 hover:underline text-lg font-medium"
+                className="text-blue-800 hover:underline text-lg font-medium"
               >
                 Saved Artifacts
               </Link>
