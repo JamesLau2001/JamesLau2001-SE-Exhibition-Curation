@@ -90,7 +90,7 @@ export default function SavedArtifacts() {
       }`}
     >
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
-        Here are your saved artifacts
+        Showing Artifacts Of: Your Saved Artifacts
       </h1>
 
       {/* Show error if there is any */}
@@ -125,7 +125,7 @@ export default function SavedArtifacts() {
           )}
         </div>
       ) : !loading ? (
-        <p className="col-span-full text-center text-gray-700">
+        <p className="col-span-full text-center text-red-600">
           No saved artifacts found
         </p>
       ) : null}

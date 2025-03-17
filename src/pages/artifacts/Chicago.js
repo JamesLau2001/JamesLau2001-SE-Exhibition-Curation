@@ -196,7 +196,7 @@ export default function ArtifactContainer({
 
   return (
     <div
-      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
+      className={`container mx-auto p-6 border-2  bg-white ${
         loading ? "pulse-border" : ""
       }`}
     >

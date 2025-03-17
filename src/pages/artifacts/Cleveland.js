@@ -199,13 +199,13 @@ export default function ArtifactContainer({
 
     if (newSearch.length > 0) {
       if (!artistSearch) {
-        setLastPageBeforeSearch(currentPage); // Store the last page before searching
+        setLastPageBeforeSearch(currentPage);
       }
       searchParams.set("artist", newSearch);
-      searchParams.set("page", "1"); // Reset to page 1 for new search
+      searchParams.set("page", "1");
     } else {
       searchParams.delete("artist");
-      searchParams.set("page", lastPageBeforeSearch.toString()); // Restore previous page
+      searchParams.set("page", lastPageBeforeSearch.toString());
     }
 
     router.push(
@@ -220,7 +220,7 @@ export default function ArtifactContainer({
 
   return (
     <div
-      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
+      className={`container mx-auto p-6  bg-white ${
         loading ? "pulse-border" : ""
       }`}
     >
