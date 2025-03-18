@@ -22,10 +22,11 @@ export default function SavedArtifacts() {
     const fetchArtifacts = async () => {
       setLoading(true);
       try {
-        console.log("Fetching artifacts for IDs:", [
-          ...savedArtifacts,
-          ...savedChicagoArtifacts,
-        ]);
+        if (savedArtifacts.length === 0 && savedChicagoArtifacts.length === 0) {
+          // No artifacts to fetch, skip the API calls
+          return;
+        }
+       
 
         const skip = (currentPage - 1) * itemsPerPage;
 
