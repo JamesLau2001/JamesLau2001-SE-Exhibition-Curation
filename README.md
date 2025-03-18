@@ -1,40 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+This project is a Front-End Exhibition Curation Platform that allows users to browse artifacts/artworks from two different museum APIs:
+The Cleveland Museum of Art: 
+Art Institute of Chicago: 
 
-## Getting Started
 
-First, run the development server:
+Features of this application include:
+. Browsing artifacts/artworks from two different museum APIs
+. Alphanumerical sorting for titles for each loaded page
+. Toggle for if the museum is currently showing the artifact/artwork at the physical museum
+. Search function allowing users to do custom searches
+. Next/Previous buttons for changing view of pages
+. Save artifacts/artworks temporarily, which can be viewed all together
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+To fork and clone this repository, fork a copy of the original repository and copy the unique link to your dashboard, and run $git clone.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To run this locally, ensure to install all the required packages and dependencies by running $npm i and then running $npm run dev to launch the website, or to access the app, please follow: ___________________. Note: Node v22.5.1 will be required to run this repository.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+Once the app is launched, the user will be directed to the home page, where the user is welcomed to the app and is prompted to select which museum API they would like to browse, orr they can update the url directly by adding '/${API}'. After this, the user will be directed to another page, where the user will see the first page of artifacts/artworks that are linked to the chosen API. From here, the user can perform several actions
