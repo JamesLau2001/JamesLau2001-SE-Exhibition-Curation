@@ -19,50 +19,57 @@ export default function SavedArtifacts() {
   const itemsPerPage = 20;
 
   useEffect(() => {
+    console.log("Context - Saved Cleveland Artifacts:", savedArtifacts);
+    console.log("Context - Saved Chicago Artifacts:", savedChicagoArtifacts);
+
     const fetchArtifacts = async () => {
       setLoading(true);
       try {
         if (savedArtifacts.length === 0 && savedChicagoArtifacts.length === 0) {
-          // No artifacts to fetch, skip the API calls
+          console.warn("No saved artifacts found, skipping fetch.");
+          setArtifactDetails([]); // Ensure UI updates correctly
           return;
         }
 
         const skip = (currentPage - 1) * itemsPerPage;
+        console.log(`Fetching page ${currentPage}, skip index: ${skip}`);
 
         const clevelandDetails = await Promise.all(
-          savedArtifacts.slice(skip, skip + itemsPerPage).map(async (id) => {
+          savedArtifacts.slice(skip, skip + itemsPerPage).map(async (id, index) => {
             try {
               const data = await fetchClevelandArtifactById(id);
-              console.log(data.id, "<--- data.id2");
-              return { ...data, source: "cleveland" };
-            } catch {
+              console.log(`Fetched Cleveland Artifact ${index}:`, data);
+              return data && data.id ? { ...data, source: "cleveland" } : null;
+            } catch (err) {
+              console.error(`Error fetching Cleveland artifact (ID: ${id}):`, err);
               return null;
             }
           })
         );
 
         const chicagoDetails = await Promise.all(
-          savedChicagoArtifacts
-            .slice(skip, skip + itemsPerPage)
-            .map(async (id) => {
-              try {
-                const data = await fetchChicagoArtifactById(id);
-                console.log(data.id, "<--- data.id");
-                return { ...data, source: "chicago" };
-              } catch {
-                return null;
-              }
-            })
+          savedChicagoArtifacts.slice(skip, skip + itemsPerPage).map(async (id, index) => {
+            try {
+              const data = await fetchChicagoArtifactById(id);
+              console.log(`Fetched Chicago Artifact ${index}:`, data);
+              return data && data.id ? { ...data, source: "chicago" } : null;
+            } catch (err) {
+              console.error(`Error fetching Chicago artifact (ID: ${id}):`, err);
+              return null;
+            }
+          })
         );
 
-        setArtifactDetails(
-          [...clevelandDetails, ...chicagoDetails].filter(Boolean)
-        );
+        const newArtifacts = [...clevelandDetails, ...chicagoDetails].filter(Boolean);
+
+        // ✅ Remove duplicates
+        const uniqueArtifacts = Array.from(new Map(newArtifacts.map(item => [item.id, item])).values());
+
+        console.log("Final list of fetched artifacts:", uniqueArtifacts);
+
+        setArtifactDetails(uniqueArtifacts);
         setTotalPages(
-          Math.ceil(
-            (savedArtifacts.length + savedChicagoArtifacts.length) /
-              itemsPerPage
-          )
+          Math.ceil((savedArtifacts.length + savedChicagoArtifacts.length) / itemsPerPage)
         );
       } catch (err) {
         console.error("Error in fetchArtifacts:", err);
@@ -72,105 +79,52 @@ export default function SavedArtifacts() {
       }
     };
 
-    if (savedArtifacts.length > 0 || savedChicagoArtifacts.length > 0) {
+    // ✅ Prevent double fetching
+    if (
+      artifactDetails.length === 0 && 
+      (savedArtifacts.length > 0 || savedChicagoArtifacts.length > 0)
+    ) {
       fetchArtifacts();
     }
   }, [savedArtifacts, savedChicagoArtifacts, currentPage]);
 
   const handlePageChange = (direction) => {
-    setCurrentPage((prev) =>
-      Math.min(Math.max(prev + direction, 1), totalPages)
-    );
+    setCurrentPage((prev) => Math.min(Math.max(prev + direction, 1), totalPages));
+    console.log(`Page changed to: ${currentPage + direction}`);
   };
 
-  const isLastPage = artifactDetails.length < itemsPerPage;
+  console.log("Rendering SavedArtifacts Component");
+  console.log("Current Artifact Details:", artifactDetails);
 
   return (
-    <div
-      className={`container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white ${
-        loading ? "pulse-border" : ""
-      }`}
-    >
+    <div className="container mx-auto p-6 border-2 rounded-lg shadow-lg bg-white">
       <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
         Showing Artifacts Of: Your Saved Artifacts
       </h1>
 
-      {/* Show error if there is any */}
       {error && <p className="text-red-600 text-center">{error}</p>}
 
-      {/* Show loading spinner if data is being fetched */}
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Render artifacts if available */}
       {artifactDetails.length > 0 && !loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {artifactDetails.map((artifact, index) =>
-            artifact.source === "cleveland" ? (
-              <div
-                key={index}
-                className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              >
+          {artifactDetails.map((artifact, index) => (
+            <div key={artifact.id} className="border border-gray-300 rounded-lg p-4 shadow-md">
+              {artifact.source === "cleveland" ? (
                 <ArtifactCard artifact={artifact} />
-              </div>
-            ) : (
-              <div
-                key={index}
-                className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              >
+              ) : (
                 <ChicagoArtifactCard artifact={artifact} />
-              </div>
-            )
-          )}
+              )}
+            </div>
+          ))}
         </div>
-      ) : !loading ? (
-        <p className="col-span-full text-center text-red-600">
-          No saved artifacts found
-        </p>
-      ) : null}
-
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-center space-x-4 mt-6">
-        {/* Previous Button */}
-        <button
-          onClick={() => handlePageChange(-1)}
-          disabled={currentPage === 1}
-          className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
-            currentPage === 1
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
-              : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
-          }`}
-        >
-          Previous
-        </button>
-
-        {/* Page Number */}
-        <span className="text-lg font-semibold text-gray-900">
-          {currentPage}
-        </span>
-
-        {/* Next Button */}
-        <button
-          onClick={() => handlePageChange(1)}
-          disabled={
-            currentPage === totalPages ||
-            isLastPage ||
-            artifactDetails.length === 0
-          }
-          className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
-            currentPage === totalPages ||
-            isLastPage ||
-            artifactDetails.length === 0
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
-              : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
-          }`}
-        >
-          Next
-        </button>
-      </div>
+      ) : (
+        !loading && <p className="text-red-600 text-center">No saved artifacts found</p>
+      )}
     </div>
   );
 }
