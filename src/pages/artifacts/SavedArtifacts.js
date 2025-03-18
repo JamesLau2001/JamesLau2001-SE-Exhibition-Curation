@@ -93,17 +93,17 @@ export default function SavedArtifacts() {
         Showing Artifacts Of: Your Saved Artifacts
       </h1>
 
-      {/* Show error if there is any */}
+     
       {error && <p className="text-red-600 text-center">{error}</p>}
 
-      {/* Show loading spinner if data is being fetched */}
+      
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Render artifacts if available */}
+      
       {artifactDetails.length > 0 && !loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {artifactDetails.map((artifact) =>
@@ -130,9 +130,9 @@ export default function SavedArtifacts() {
         </p>
       ) : null}
 
-      {/* Pagination Controls */}
+    
       <div className="flex items-center justify-center space-x-4 mt-6">
-        {/* Previous Button */}
+      
         <button
           onClick={() => handlePageChange(-1)}
           disabled={currentPage === 1}
@@ -145,12 +145,12 @@ export default function SavedArtifacts() {
           Previous
         </button>
 
-        {/* Page Number */}
+        
         <span className="text-lg font-semibold text-gray-900">
           {currentPage}
         </span>
 
-        {/* Next Button */}
+        
         <button
           onClick={() => handlePageChange(1)}
           disabled={

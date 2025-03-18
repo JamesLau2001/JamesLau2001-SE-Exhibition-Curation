@@ -59,7 +59,7 @@ export default function SearchResults() {
         </div>
       )}
 
-      {/* Pagination Controls */}
+    
       <div className="mt-6 flex justify-center">
         <PaginationControls
           currentPage={currentPage}

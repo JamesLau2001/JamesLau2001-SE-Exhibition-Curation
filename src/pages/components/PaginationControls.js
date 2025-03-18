@@ -3,7 +3,7 @@ import React from "react";
 const PaginationControls = ({
   currentPage,
   handlePageChange,
-  currentArtifacts = [], // ✅ Default value to prevent undefined errors
+  currentArtifacts = [], 
 }) => {
   return (
     <div className="flex items-center justify-center space-x-4 mt-6">

@@ -175,13 +175,13 @@ export default function ArtifactContainer({
 
     if (newSearch.length > 0) {
       if (!artistSearch) {
-        setLastPageBeforeSearch(currentPage); // Store the last page before searching
+        setLastPageBeforeSearch(currentPage);
       }
       searchParams.set("artist", newSearch);
-      searchParams.set("page", "1"); // Reset to page 1 for new search
+      searchParams.set("page", "1"); 
     } else {
       searchParams.delete("artist");
-      searchParams.set("page", lastPageBeforeSearch.toString()); // Restore previous page
+      searchParams.set("page", lastPageBeforeSearch.toString()); 
     }
 
     router.push(
@@ -249,21 +249,21 @@ export default function ArtifactContainer({
         </div>
       </div>
 
-      {/* Show only if an error occurs */}
+     
       {fetchError && (
         <p className="text-red-600 text-center">
           {fetchError} {statusCode && `(Error Code: ${statusCode})`}
         </p>
       )}
 
-      {/* Show loading when fetching */}
+      
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
-      {/* Render Artifacts */}
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentArtifacts.length > 0 ? (
           currentArtifacts.map((artifact) => (
