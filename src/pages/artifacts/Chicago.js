@@ -271,7 +271,7 @@ export default function ArtifactContainer({
               key={artifact.id}
               className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <ChicagoArtifactCard artifact={artifact} />
+              <ChicagoArtifactCard artifact={artifact} key={artifact.id}/>
             </div>
           ))
         ) : (
