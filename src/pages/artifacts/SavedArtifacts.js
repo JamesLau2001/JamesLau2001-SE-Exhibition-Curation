@@ -46,6 +46,7 @@ export default function SavedArtifacts() {
             .map(async (id) => {
               try {
                 const data = await fetchChicagoArtifactById(id);
+                console.log(id)
                 return { ...data, source: "chicago" };
               } catch {
                 return null;
@@ -104,7 +105,7 @@ export default function SavedArtifacts() {
       )}
 
       {/* Render artifacts if available */}
-      {artifactDetails.length > 0 && !loading ? (
+      {/* {artifactDetails.length > 0 && !loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {artifactDetails.map((artifact) =>
             artifact.source === "cleveland" ? (
@@ -128,7 +129,34 @@ export default function SavedArtifacts() {
         <p className="col-span-full text-center text-red-600">
           No saved artifacts found
         </p>
-      ) : null}
+      ) : null} */}
+{artifactDetails.length > 0 && !loading ? (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {artifactDetails.map((artifact) => 
+      artifact.id ? ( // Check if `id` is defined
+        artifact.source === "cleveland" ? (
+          <div
+            key={artifact.id}
+            className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+          >
+            <ArtifactCard artifact={artifact} />
+          </div>
+        ) : (
+          <div
+            key={artifact.id}
+            className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+          >
+            <ChicagoArtifactCard artifact={artifact} />
+          </div>
+        )
+      ) : null // If no `id`, don't render the artifact
+    )}
+  </div>
+) : !loading ? (
+  <p className="col-span-full text-center text-red-600">
+    No saved artifacts found
+  </p>
+) : null}
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-center space-x-4 mt-6">

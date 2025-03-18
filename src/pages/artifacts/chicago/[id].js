@@ -64,7 +64,7 @@ export default function ChicagoArtifactPage({
         setLoading(true);
         try {
           const data = await fetchChicagoArtifactById(id);
-
+          console.log(id)
           if (data?.error) {
             setFetchError(data.message);
             setArtifact(null);
