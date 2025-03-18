@@ -26,7 +26,6 @@ export default function SavedArtifacts() {
           // No artifacts to fetch, skip the API calls
           return;
         }
-       
 
         const skip = (currentPage - 1) * itemsPerPage;
 
@@ -34,6 +33,7 @@ export default function SavedArtifacts() {
           savedArtifacts.slice(skip, skip + itemsPerPage).map(async (id) => {
             try {
               const data = await fetchClevelandArtifactById(id);
+              console.log(data.id, "<--- data.id2");
               return { ...data, source: "cleveland" };
             } catch {
               return null;
@@ -47,7 +47,7 @@ export default function SavedArtifacts() {
             .map(async (id) => {
               try {
                 const data = await fetchChicagoArtifactById(id);
-                console.log(id)
+                console.log(data.id, "<--- data.id");
                 return { ...data, source: "chicago" };
               } catch {
                 return null;
@@ -108,20 +108,20 @@ export default function SavedArtifacts() {
       {/* Render artifacts if available */}
       {artifactDetails.length > 0 && !loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {artifactDetails.map((artifact) =>
+          {artifactDetails.map((artifact, index) =>
             artifact.source === "cleveland" ? (
               <div
-                key={artifact.id}
+                key={index}
                 className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
               >
-                <ArtifactCard artifact={artifact} key={artifact.id}/>
+                <ArtifactCard artifact={artifact} />
               </div>
             ) : (
               <div
-                key={artifact.id}
+                key={index}
                 className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
               >
-                <ChicagoArtifactCard artifact={artifact} key={artifact.id}/>
+                <ChicagoArtifactCard artifact={artifact} />
               </div>
             )
           )}
@@ -131,7 +131,6 @@ export default function SavedArtifacts() {
           No saved artifacts found
         </p>
       ) : null}
-
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-center space-x-4 mt-6">
