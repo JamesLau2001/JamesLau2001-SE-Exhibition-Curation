@@ -144,7 +144,7 @@ export default function ChicagoArtifactPage({
         </p>
         <p className="text-gray-700 mt-1">
           <strong>Located at:</strong>{" "}
-          {artifact.gallery_title || "Not available at this museum"}
+          {`${artifact.gallery_title} (Art Institute of Chicago)` || "Not available at this museum"}
         </p>
       </section>
 
