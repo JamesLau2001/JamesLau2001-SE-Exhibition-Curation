@@ -10,7 +10,7 @@ import { handleSortChange } from "@/utils/handleSortChange";
 import PaginationControls from "../components/PaginationControls";
 import FilterOnViewControls from "../components/ToggleOnViewControl";
 import { useDebounce } from "@/utils/useDebounce";
-
+import SortingAndFilter from "../components/SortingAndFilter";
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "false";
@@ -178,10 +178,10 @@ export default function ArtifactContainer({
         setLastPageBeforeSearch(currentPage);
       }
       searchParams.set("artist", newSearch);
-      searchParams.set("page", "1"); 
+      searchParams.set("page", "1");
     } else {
       searchParams.delete("artist");
-      searchParams.set("page", lastPageBeforeSearch.toString()); 
+      searchParams.set("page", lastPageBeforeSearch.toString());
     }
 
     router.push(
@@ -206,64 +206,27 @@ export default function ArtifactContainer({
           : "Showing Artifacts For: Art Institute of Chicago"}
       </h1>
 
-      {/* Sorting & Filter Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm">
-        <div className="flex items-center space-x-2">
-          <p className="font-semibold text-gray-900">Sort:</p>
-          <label htmlFor="sort-select" className="sr-only">
-            Title by:
-          </label>
-          <select
-            id="sort-select"
-            onChange={handleSort}
-            value={titleSortByQuery}
-            className="border border-gray-400 rounded-md px-3 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700"
-          >
-            <option value="asc">A-Z</option>
-            <option value="desc">Z-A</option>
-          </select>
-        </div>
+      <SortingAndFilter
+        artistSearch={artistSearch}
+        handleSort={handleSort}
+        titleSortByQuery={titleSortByQuery}
+        handleSearchChange={handleSearchChange}
+        handleOnViewToggle={handleOnViewToggle}
+        currentlyOnView={currentlyOnView}
+      />
 
-        {/* Search Bar */}
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={artistSearch}
-            onChange={handleSearchChange}
-            className="px-4 py-2 border border-gray-400 rounded-md text-black"
-            placeholder="Search for ..."
-          />
-        </div>
-
-        {/* Toggle Button for "Currently on View Feature" */}
-        <div className="flex items-center space-x-2">
-          <p className="font-semibold text-gray-900">Toggle:</p>
-          <button
-            onClick={handleOnViewToggle}
-            className="px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 min-w-[200px]"
-          >
-            {currentlyOnView === "true"
-              ? "All Artifacts"
-              : "Available at Museum"}
-          </button>
-        </div>
-      </div>
-
-     
       {fetchError && (
         <p className="text-red-600 text-center">
           {fetchError} {statusCode && `(Error Code: ${statusCode})`}
         </p>
       )}
 
-      
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
-      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentArtifacts.length > 0 ? (
           currentArtifacts.map((artifact) => (
@@ -271,7 +234,7 @@ export default function ArtifactContainer({
               key={artifact.id}
               className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
             >
-              <ChicagoArtifactCard artifact={artifact} key={artifact.id}/>
+              <ChicagoArtifactCard artifact={artifact} key={artifact.id} />
             </div>
           ))
         ) : (
