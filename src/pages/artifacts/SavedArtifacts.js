@@ -147,7 +147,7 @@ export default function SavedArtifacts() {
 
         
         <span className="text-lg font-semibold text-gray-900">
-          {currentPage}
+          Page {currentPage}
         </span>
 
         
