@@ -158,7 +158,7 @@ export default function ChicagoArtifactPage({
           className={`px-6 py-2 rounded-lg font-medium transition-all ${
             savedChicagoArtifacts.includes(initialArtifact.id)
               ? "bg-red-500 text-white hover:bg-red-600"
-              : "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-blue-700 text-white hover:bg-blue-700"
           }`}
         >
           {savedChicagoArtifacts.includes(initialArtifact.id)
