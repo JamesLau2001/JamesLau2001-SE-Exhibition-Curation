@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
-
+import Head from "next/head";
 export default function Layout({ children }) {
   const router = useRouter();
 
@@ -8,6 +8,9 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-200">
+      <Head>
+        <title>The Exhibition Curation Platform</title>
+      </Head>
       <Link href="/">
         <header className="py-6 bg-white shadow-md">
           <h1 className="text-4xl font-bold text-center text-gray-900">
