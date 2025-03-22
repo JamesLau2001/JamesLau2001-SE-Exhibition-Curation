@@ -22,13 +22,13 @@ body {
 
 @keyframes pulse-border {
   0% {
-    border-color: #016cf8; /* Adjust the color as you want */
+    border-color: #016cf8; 
   }
   50% {
-    border-color: #03288f; /* Adjust the color as you want */
+    border-color: #03288f; 
   }
   100% {
-    border-color: #000000; /* Adjust the color as you want */
+    border-color: #000000; 
   }
 }
 
