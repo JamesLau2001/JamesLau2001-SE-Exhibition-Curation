@@ -83,7 +83,7 @@ export default function SavedArtifacts() {
         loading ? "pulse-border" : ""
       }`}
     >
-      <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
+      <h1 className="text-2xl text-gray-900 font-bold text-center mb-6" role="heading" aria-level="1">
         Showing Artifacts Of: Your Saved Artifacts
       </h1>
 
@@ -91,37 +91,38 @@ export default function SavedArtifacts() {
 
       {loading && (
         <div className="flex justify-center items-center space-x-2">
-          <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+          <div
+            className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"
+            aria-live="assertive"
+            aria-label="Loading artifacts"
+          ></div>
         </div>
       )}
 
       {artifactDetails.length > 0 && !loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {artifactDetails.map((artifact) =>
-            artifact.source === "cleveland" ? (
-              <div
-                key={artifact.id}
-                className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" role="list">
+          {artifactDetails.map((artifact) => (
+            <div
+              key={artifact.id}
+              className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+              role="listitem"
+              aria-labelledby={`artifact-${artifact.id}`}
+            >
+              {artifact.source === "cleveland" ? (
                 <ArtifactCard artifact={artifact} />
-              </div>
-            ) : (
-              <div
-                key={artifact.id}
-                className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              >
+              ) : (
                 <ChicagoArtifactCard artifact={artifact} />
-              </div>
-            )
-          )}
+              )}
+            </div>
+          ))}
         </div>
       ) : !loading ? (
-        <p className="col-span-full text-center text-red-600">
+        <p className="col-span-full text-center text-red-600" role="status">
           No saved artifacts found
         </p>
       ) : null}
 
-      <div className="flex items-center justify-center space-x-4 mt-6">
+      <div className="flex items-center justify-center space-x-4 mt-6" aria-live="polite">
         <button
           onClick={() => handlePageChange(-1)}
           disabled={currentPage === 1}
@@ -130,28 +131,24 @@ export default function SavedArtifacts() {
               ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
               : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
           }`}
+          aria-label="Previous page"
         >
           Previous
         </button>
 
-        <span className="text-lg font-semibold text-gray-900">
+        <span className="text-lg font-semibold text-gray-900" aria-live="assertive">
           Page {currentPage}
         </span>
 
         <button
           onClick={() => handlePageChange(1)}
-          disabled={
-            currentPage === totalPages ||
-            isLastPage ||
-            artifactDetails.length === 0
-          }
+          disabled={currentPage === totalPages || isLastPage || artifactDetails.length === 0}
           className={`px-4 py-2 rounded-md font-medium transition bg-gray-700 text-white hover:bg-gray-800 border border-gray-700 ${
-            currentPage === totalPages ||
-            isLastPage ||
-            artifactDetails.length === 0
+            currentPage === totalPages || isLastPage || artifactDetails.length === 0
               ? "bg-gray-400 text-gray-700 cursor-not-allowed border-gray-400"
               : "bg-gray-700 text-white hover:bg-gray-800 border-gray-700"
           }`}
+          aria-label="Next page"
         >
           Next
         </button>

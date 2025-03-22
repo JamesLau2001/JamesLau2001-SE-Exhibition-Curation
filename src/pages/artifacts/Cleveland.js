@@ -220,16 +220,21 @@ export default function ArtifactContainer({
 
   return (
     <div
-      className={`container mx-auto p-6  bg-white ${
-        loading ? "pulse-border" : ""
-      }`}
+      className={`container mx-auto p-6 bg-white ${loading ? "pulse-border" : ""}`}
+      role="region"
+      aria-labelledby="artifact-container-heading"
     >
-      <h1 className="text-2xl text-gray-900 font-bold text-center mb-6">
+      <h1
+        id="artifact-container-heading"
+        className="text-2xl text-gray-900 font-bold text-center mb-6"
+        role="heading"
+        aria-level="1"
+      >
         {artistSearch
           ? `Showing Artifacts Of Search Results for: "${artistSearch}"`
           : "Showing Artifacts For: The Cleveland Museum of Arts"}
       </h1>
-
+  
       <SortingAndFilter
         artistSearch={artistSearch}
         handleSort={handleSort}
@@ -238,37 +243,52 @@ export default function ArtifactContainer({
         handleOnViewToggle={handleOnViewToggle}
         currentlyOnView={currentlyOnView}
       />
-
+  
       {fetchError && (
-        <p className="text-red-600 text-center">
+        <p
+          className="text-red-600 text-center"
+          role="alert"
+          aria-live="assertive"
+        >
           {fetchError} {statusCode && `(Error Code: ${statusCode})`}
         </p>
       )}
-
+  
       {loading ? (
-        <div className="flex justify-center items-center">
+        <div
+          className="flex justify-center items-center"
+          role="status"
+          aria-live="polite"
+          aria-label="Loading artifacts"
+        >
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          role="list"
+          aria-live="polite"
+        >
           {currentArtifacts.length > 0 ? (
             currentArtifacts.map((artifact) => (
               <div
                 key={artifact.id}
                 className="border border-gray-300 rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+                role="listitem"
+                aria-labelledby={`artifact-${artifact.id}`}
               >
                 <ArtifactCard artifact={artifact} />
               </div>
             ))
           ) : (
-            <p className="text-red-600 col-span-full text-center">
+            <p className="text-red-600 col-span-full text-center" role="status" aria-live="assertive">
               No artifacts found
             </p>
           )}
         </div>
       )}
-
-      <div className="mt-6 flex justify-center">
+  
+      <div className="mt-6 flex justify-center" role="navigation" aria-label="Pagination Controls">
         <PaginationControls
           currentPage={currentPage}
           handlePageChange={handlePage}
@@ -277,4 +297,5 @@ export default function ArtifactContainer({
       </div>
     </div>
   );
+  
 }
