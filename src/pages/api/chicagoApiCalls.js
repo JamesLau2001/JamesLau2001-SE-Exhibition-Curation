@@ -16,8 +16,6 @@ export async function fetchChicagoArtifacts({
     const data = await response.json();
     return data.data || [];
   } catch (error) {
-    console.error("Fetch Error:", error.message);
-
     return {
       error: true,
       statusCode: error.message.includes("HTTP")
@@ -41,8 +39,6 @@ export async function fetchChicagoArtifactById(id) {
     const data = await response.json();
     return data.data || {};
   } catch (error) {
-    console.error("Error fetching artifact:", error.message);
-
     return {
       error: true,
       statusCode: error.message.includes("HTTP")
@@ -75,7 +71,6 @@ export async function fetchChicagoArtifactsByArtist(
     const data = await response.json();
     return data.data || [];
   } catch (error) {
-    console.error("Artist Search Fetch Error:", error);
     return { error: true, message: error.message };
   }
 }

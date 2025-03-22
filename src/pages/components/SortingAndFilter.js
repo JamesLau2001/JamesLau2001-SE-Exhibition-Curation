@@ -1,6 +1,13 @@
 import React from "react";
 
-const SortingAndFilter = ({artistSearch, handleSort, titleSortByQuery, handleSearchChange, handleOnViewToggle, currentlyOnView}) => {
+const SortingAndFilter = ({
+  artistSearch,
+  handleSort,
+  titleSortByQuery,
+  handleSearchChange,
+  handleOnViewToggle,
+  currentlyOnView,
+}) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 p-3 rounded-md border border-gray-400 shadow-sm">
       <div className="flex items-center space-x-2">
@@ -40,4 +47,4 @@ const SortingAndFilter = ({artistSearch, handleSort, titleSortByQuery, handleSea
   );
 };
 
-export default SortingAndFilter
+export default SortingAndFilter;

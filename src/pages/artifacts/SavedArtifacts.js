@@ -22,11 +22,6 @@ export default function SavedArtifacts() {
     const fetchArtifacts = async () => {
       setLoading(true);
       try {
-        console.log("Fetching artifacts for IDs:", [
-          ...savedArtifacts,
-          ...savedChicagoArtifacts,
-        ]);
-
         const skip = (currentPage - 1) * itemsPerPage;
 
         const clevelandDetails = await Promise.all(
@@ -63,7 +58,6 @@ export default function SavedArtifacts() {
           )
         );
       } catch (err) {
-        console.error("Error in fetchArtifacts:", err);
         setError("There was an error fetching the artifacts.");
       } finally {
         setLoading(false);
@@ -93,17 +87,14 @@ export default function SavedArtifacts() {
         Showing Artifacts Of: Your Saved Artifacts
       </h1>
 
-     
       {error && <p className="text-red-600 text-center">{error}</p>}
 
-      
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
 
-      
       {artifactDetails.length > 0 && !loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {artifactDetails.map((artifact) =>
@@ -130,9 +121,7 @@ export default function SavedArtifacts() {
         </p>
       ) : null}
 
-    
       <div className="flex items-center justify-center space-x-4 mt-6">
-      
         <button
           onClick={() => handlePageChange(-1)}
           disabled={currentPage === 1}
@@ -145,12 +134,10 @@ export default function SavedArtifacts() {
           Previous
         </button>
 
-        
         <span className="text-lg font-semibold text-gray-900">
           Page {currentPage}
         </span>
 
-        
         <button
           onClick={() => handlePageChange(1)}
           disabled={

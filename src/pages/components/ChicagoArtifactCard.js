@@ -6,7 +6,6 @@ const ChicagoArtifactCard = ({ artifact }) => {
     ? `https://www.artic.edu/iiif/2/${artifact.image_id}/full/843,/0/default.jpg`
     : null;
     if (!artifact || !artifact.id) {
-      console.warn("Artifact data is missing or invalid:", artifact);
       return (
         <div className="flex items-center justify-center h-60 bg-gray-200">
           <p className="text-gray-600">Artifact data unavailable</p>

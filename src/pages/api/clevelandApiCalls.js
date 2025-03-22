@@ -28,8 +28,6 @@ export async function fetchClevelandArtifacts({
 
     return data.data || [];
   } catch (error) {
-    console.error("Fetch Error:", error.message);
-
     return {
       error: true,
       statusCode: error.message.includes("HTTP")
@@ -58,8 +56,6 @@ export async function fetchClevelandArtifactById(id) {
     const data = await response.json();
     return data.data || {};
   } catch (error) {
-    console.error("Error fetching artifact:", error.message);
-
     return {
       error: true,
       statusCode: error.message.includes("HTTP")
@@ -87,28 +83,22 @@ export async function fetchClevelandArtifactsByArtist(
   )}&page=${page}&limit=${limit}`;
 
   try {
-    console.log("Making API request to:", url);
     const response = await fetch(url, {
       method: "GET",
     });
 
     if (!response.ok) {
-      console.error("HTTP error! Status:", response.status);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("Fetched data:", data);
 
     if (data.data && data.data.length > 0) {
-      console.log("Data contains artifacts:", data.data);
       return data.data;
     } else {
-      console.log("No artifacts found for artist:", artist);
       return [];
     }
   } catch (error) {
-    console.error("Fetch Error:", error.message);
     return { error: true, message: error.message };
   }
 }

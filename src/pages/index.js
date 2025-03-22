@@ -7,7 +7,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  
   const fetchMuseumData = (museum) => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -20,15 +19,12 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const data = await fetchMuseumData(museum); 
-      console.log(data); 
+      const data = await fetchMuseumData(museum);
 
-     
       router.push(`/artifacts/${museum}`);
     } catch (error) {
-      console.error("Error fetching museum data:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 

@@ -3,7 +3,6 @@ import Image from "next/image";
 
 const ArtifactCard = ({ artifact }) => {
   if (!artifact || !artifact.id) {
-    console.warn("Artifact data is missing or invalid:", artifact);
     return (
       <div className="flex items-center justify-center h-60 bg-gray-200">
         <p className="text-gray-600">Artifact data unavailable</p>

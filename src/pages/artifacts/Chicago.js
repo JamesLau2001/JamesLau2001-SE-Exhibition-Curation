@@ -8,7 +8,7 @@ import ChicagoArtifactCard from "../components/ChicagoArtifactCard";
 import { handlePageChange } from "@/utils/paginationControls";
 import { handleSortChange } from "@/utils/handleSortChange";
 import PaginationControls from "../components/PaginationControls";
-import FilterOnViewControls from "../components/ToggleOnViewControl";
+
 import { useDebounce } from "@/utils/useDebounce";
 import SortingAndFilter from "../components/SortingAndFilter";
 export async function getServerSideProps({ query }) {
@@ -244,7 +244,6 @@ export default function ArtifactContainer({
         )}
       </div>
 
-      {/* Pagination Controls */}
       <div className="mt-6 flex justify-center">
         <PaginationControls
           currentPage={currentPage}

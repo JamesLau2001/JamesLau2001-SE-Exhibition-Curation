@@ -64,7 +64,6 @@ export default function ChicagoArtifactPage({
         setLoading(true);
         try {
           const data = await fetchChicagoArtifactById(id);
-          console.log(id)
           if (data?.error) {
             setFetchError(data.message);
             setArtifact(null);
@@ -91,7 +90,9 @@ export default function ChicagoArtifactPage({
   if (loading)
     return <p className="text-center text-lg font-medium">Loading...</p>;
   if (!artifact)
-    return <p className="text-center text-lg font-medium">Artifact not found.</p>;
+    return (
+      <p className="text-center text-lg font-medium">Artifact not found.</p>
+    );
 
   const handleSave = () => {
     if (savedChicagoArtifacts.includes(initialArtifact.id)) {
@@ -135,7 +136,9 @@ export default function ChicagoArtifactPage({
       </section>
 
       <section className="mt-4">
-        <h2 className="text-xl font-semibold text-gray-800">Artifact Details</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Artifact Details
+        </h2>
         <p className="text-gray-700 mt-2">
           <strong>Created by:</strong> {artifact.artist_title || "Unknown"}
         </p>
@@ -144,7 +147,8 @@ export default function ChicagoArtifactPage({
         </p>
         <p className="text-gray-700 mt-1">
           <strong>Located at:</strong>{" "}
-          {`${artifact.gallery_title} (Art Institute of Chicago)` || "Not available at this museum"}
+          {`${artifact.gallery_title} (Art Institute of Chicago)` ||
+            "Not available at this museum"}
         </p>
       </section>
 
