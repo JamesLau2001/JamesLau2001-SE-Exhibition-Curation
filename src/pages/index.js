@@ -19,11 +19,10 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const data = await fetchMuseumData(museum);
+      await fetchMuseumData(museum);
       router.push(`/artifacts/${museum}`);
     } catch (error) {
-    } finally {
-      setLoading(false);
+      console.error("Error:", error);
     }
   };
 
