@@ -33,7 +33,7 @@ export default function Home() {
       </h1>
 
       <p className="mt-4 text-lg text-gray-900 text-center mb-8">
-        Which Museum/Exhibition would you like to view?
+        Which Museum/Exhibition Would You Like to View?
       </p>
 
       {loading ? (
