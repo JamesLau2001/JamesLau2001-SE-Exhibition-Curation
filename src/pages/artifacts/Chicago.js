@@ -7,10 +7,13 @@ import {
 import ChicagoArtifactCard from "../components/ChicagoArtifactCard";
 import { handlePageChange } from "@/utils/paginationControls";
 import { handleSortChange } from "@/utils/handleSortChange";
+import { handleSearchInputChange } from "@/utils/handleSearchChange";
+import { handleOnViewToggleUtil } from "@/utils/handleOnViewToggle";
 import PaginationControls from "../components/PaginationControls";
 
 import { useDebounce } from "@/utils/useDebounce";
 import SortingAndFilter from "../components/SortingAndFilter";
+
 export async function getServerSideProps({ query }) {
   const titleSortByQuery = query.title || "asc";
   const currentlyOnViewQuery = query.currently_on_view || "false";
@@ -150,17 +153,12 @@ export default function ArtifactContainer({
   };
 
   const handleOnViewToggle = () => {
-    const newOnViewValue = currentlyOnView === "true" ? "false" : "true";
-    setCurrentlyOnView(newOnViewValue);
-    searchParams.set("currently_on_view", newOnViewValue);
-    router.push(
-      {
-        pathname: router.pathname,
-        query: Object.fromEntries(searchParams),
-      },
-      undefined,
-      { shallow: true }
-    );
+    handleOnViewToggleUtil({
+      currentlyOnView,
+      setCurrentlyOnView,
+      router,
+      searchParams,
+    });
   };
 
   const handlePage = (page) => {
@@ -170,28 +168,16 @@ export default function ArtifactContainer({
   const [lastPageBeforeSearch, setLastPageBeforeSearch] = useState(initialPage);
 
   const handleSearchChange = (e) => {
-    const newSearch = e.target.value.trim();
-    setArtistSearch(newSearch);
-
-    if (newSearch.length > 0) {
-      if (!artistSearch) {
-        setLastPageBeforeSearch(currentPage);
-      }
-      searchParams.set("artist", newSearch);
-      searchParams.set("page", "1");
-    } else {
-      searchParams.delete("artist");
-      searchParams.set("page", lastPageBeforeSearch.toString());
-    }
-
-    router.push(
-      {
-        pathname: router.pathname,
-        query: Object.fromEntries(searchParams),
-      },
-      undefined,
-      { shallow: true }
-    );
+    handleSearchInputChange({
+      e,
+      router,
+      searchParams,
+      artistSearch,
+      setArtistSearch,
+      setLastPageBeforeSearch,
+      lastPageBeforeSearch,
+      currentPage,
+    });
   };
 
   return (
@@ -212,7 +198,7 @@ export default function ArtifactContainer({
           ? `Showing Artifacts Of Search Results for: "${artistSearch}"`
           : "Showing Artifacts For: Art Institute of Chicago"}
       </h1>
-  
+
       <SortingAndFilter
         artistSearch={artistSearch}
         handleSort={handleSort}
@@ -221,13 +207,17 @@ export default function ArtifactContainer({
         handleOnViewToggle={handleOnViewToggle}
         currentlyOnView={currentlyOnView}
       />
-  
+
       {fetchError && (
-        <p className="text-red-600 text-center" role="alert" aria-live="assertive">
+        <p
+          className="text-red-600 text-center"
+          role="alert"
+          aria-live="assertive"
+        >
           {fetchError} {statusCode && `(Error Code: ${statusCode})`}
         </p>
       )}
-  
+
       {loading && (
         <div className="flex justify-center items-center space-x-2">
           <div
@@ -238,8 +228,11 @@ export default function ArtifactContainer({
           ></div>
         </div>
       )}
-  
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" role="list">
+
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        role="list"
+      >
         {currentArtifacts.length > 0 ? (
           currentArtifacts.map((artifact) => (
             <div
@@ -252,12 +245,16 @@ export default function ArtifactContainer({
             </div>
           ))
         ) : (
-          <p className="text-red-600 col-span-full text-center" role="status" aria-live="assertive">
+          <p
+            className="text-red-600 col-span-full text-center"
+            role="status"
+            aria-live="assertive"
+          >
             No artifacts found
           </p>
         )}
       </div>
-  
+
       <div className="mt-6 flex justify-center">
         <PaginationControls
           currentPage={currentPage}
@@ -267,5 +264,4 @@ export default function ArtifactContainer({
       </div>
     </div>
   );
-  
 }

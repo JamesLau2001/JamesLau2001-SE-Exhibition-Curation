@@ -140,7 +140,8 @@ export default function ArtifactPage({
         </p>
         <p className="text-gray-700 mt-1">
           <strong>Located at:</strong>{" "}
-          {`${artifact.current_location} (The Cleveland Museum of Art)` || "Location not specified"}
+          {`${artifact.current_location} (The Cleveland Museum of Art)` ||
+            "Location not specified"}
         </p>
       </section>
 
