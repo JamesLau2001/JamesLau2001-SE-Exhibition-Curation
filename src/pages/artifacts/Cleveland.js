@@ -219,7 +219,7 @@ export default function ArtifactContainer({
       >
         {artistSearch
           ? `Showing Artifacts Of Search Results for: "${artistSearch}"`
-          : "Showing Artifacts For: The Cleveland Museum of Arts"}
+          : "Showing Artifacts For: The Cleveland Museum of Art"}
       </h1>
 
       <SortingAndFilter
